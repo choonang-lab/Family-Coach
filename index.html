@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Family Coach</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Coach">
+<meta name="theme-color" content="#2F6F62">
+<style>
+:root{--bg:#F4F2EE;--card:#FFFFFF;--ink:#1F2421;--mute:#666C68;--line:#E3DFD7;--accent:#2F6F62;--accent-soft:#E2EEEA;--on-accent:#FFFFFF;--good:#2E7D4F;--good-soft:#E0F1E6;--bad:#B4472F;--bad-soft:#F8E4DD;--warn:#8F6300;--warn-soft:#FAEFD2;--chip:#EFECE6}
+@media (prefers-color-scheme:dark){:root{--bg:#121514;--card:#1C201E;--ink:#E8ECE9;--mute:#9AA39E;--line:#2C3330;--accent:#72C2AC;--accent-soft:#1D312B;--on-accent:#0B1A15;--good:#6FC892;--good-soft:#1A3023;--bad:#EA8D76;--bad-soft:#3A211B;--warn:#E3B755;--warn-soft:#332912;--chip:#262B29}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top) + 10px) 16px 8px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line)}
+.brand{font-weight:700;font-size:18px}
+.wk{font-size:13px;color:var(--mute);text-align:right}
+main{max-width:640px;margin:0 auto;padding:12px 16px calc(84px + env(safe-area-inset-bottom))}
+nav#tabbar{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav#tabbar button{flex:1;background:none;border:0;padding:8px 0 6px;color:var(--mute);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav#tabbar button.on{color:var(--accent);font-weight:600}
+nav svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px}
+.ch{font-weight:650;font-size:16px;margin:0 0 6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.kicker{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700}
+.h2{font-size:20px;font-weight:700;margin:2px 0 4px}
+.mute{color:var(--mute)}
+.small{font-size:13px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.lbl{flex:1;min-width:0}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-shrink:0}
+.seg button{background:var(--card);border:0;border-left:1px solid var(--line);padding:8px 10px;font:inherit;font-size:14px;color:var(--ink);min-width:44px}
+.seg button:first-child{border-left:0}
+.seg button.on{background:var(--accent);color:var(--on-accent)}
+.seg button.on.good{background:var(--good)}
+.seg button.on.bad{background:var(--bad)}
+.inp{display:flex;align-items:center;gap:6px}
+input,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+input[type=number]{width:80px;text-align:right}
+input.hm{width:54px}
+input.txt,textarea{width:100%}
+textarea{min-height:64px;resize:vertical;display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--accent);color:var(--on-accent);border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:600;font-size:15px}
+.btn.ghost{background:var(--accent-soft);color:var(--accent)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.ib{background:var(--card);border:1px solid var(--line);border-radius:10px;width:42px;height:42px;font-size:20px;color:var(--ink)}
+.ib:disabled{opacity:.3}
+.datebar{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;text-align:center}
+.datebar b{display:block;font-size:17px}
+.chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;background:var(--chip);color:var(--mute);white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.check{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);cursor:pointer}
+.box{width:22px;height:22px;border:2px solid var(--mute);border-radius:6px;flex-shrink:0;margin-top:1px;display:grid;place-items:center}
+.check.done .box{background:var(--good);border-color:var(--good)}
+.check.done .box::after{content:"";width:6px;height:11px;border:solid var(--on-accent);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.check.done .ct{color:var(--mute);text-decoration:line-through}
+.when{font-size:12px;color:var(--mute)}
+.note{border-radius:12px;padding:12px 14px;margin:0 0 12px;font-size:15px}
+.note.good{background:var(--good-soft)}
+.note.warn{background:var(--warn-soft)}
+.note.info{background:var(--accent-soft)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--bg);border-radius:10px;padding:10px}
+.stat .v{font-size:19px;font-weight:700}
+.stat .k{font-size:12px;color:var(--mute)}
+.tw{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.dot{width:10px;height:10px;border-radius:50%;margin-top:7px;flex-shrink:0;background:var(--good)}
+.dot.fired{background:var(--bad)}
+details.card>summary{list-style:none;cursor:pointer}
+details.card>summary::-webkit-details-marker{display:none}
+.cal{display:grid;grid-template-columns:30px repeat(7,1fr);gap:4px;font-size:11px;color:var(--mute);text-align:center;align-items:center}
+.cal .c{height:22px;border-radius:5px;background:var(--chip)}
+.cal .c.held{background:var(--good)}
+.cal .c.slip{background:var(--bad)}
+.cal .c.fut{background:transparent;border:1px dashed var(--line)}
+svg.chart{width:100%;height:auto;display:block}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .lab{fill:var(--mute);font-size:9px}
+.chart .act{stroke:var(--accent);stroke-width:2;fill:none}
+.chart .actd{fill:var(--accent)}
+.chart .bud{stroke:var(--ink);stroke-width:1.5;fill:none;stroke-dasharray:4 3;opacity:.55}
+.chart .base{stroke:var(--warn);stroke-width:1.5;stroke-dasharray:2 3}
+.chart .guide{stroke:var(--good);stroke-width:1.2;stroke-dasharray:1 3}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin-top:6px}
+.legend i{display:inline-block;width:14px;border-top:2px solid;vertical-align:middle;margin-right:4px}
+#toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9;max-width:90vw}
+#toast.show{opacity:1}
+ul.say{margin:6px 0 0;padding-left:18px}
+ul.say li{margin:4px 0}
+.field{display:block;margin:10px 0}
+.field span{display:block;font-size:13px;color:var(--mute);margin-bottom:4px}
+.field input{width:100%}
+.build{font-size:12px;color:var(--mute);text-align:center;margin:16px 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:18px 0 8px;font-weight:700}
+.q{font-weight:600;font-size:14px;margin:12px 0 4px}
+.addrow{display:flex;gap:8px;margin-top:8px}
+.addrow input{flex:1}
+</style>
+</head>
+<body>
+<header><div class="brand">Family Coach</div><div id="wk" class="wk"></div></header>
+<main id="main"></main>
+<nav id="tabbar"></nav>
+<div id="toast"></div>
+<script>
+const BUILD = 'v1';
+const KEY = 'fc_data';
+const GHKEY = 'fc_gh';
+const DIRTY = 'fc_dirty';
+const DAY = 864e5;
+
+/* ---------- Plan content (no names or personal details: this file is public) ---------- */
+const RULES = [
+  { id: 'meals', label: 'No screens at meals' },
+  { id: 'charge', label: 'Devices charged in the living room overnight' },
+  { id: 'bed', label: 'No screens in the hour before bed' }
+];
+
+const WEEKS = [
+  { n: 1, title: 'Measure and agree', budget: null, short: null,
+    goal: 'Set up the controls, agree the three house rules, and get a baseline. No budget cuts this week.',
+    success: ['House rules held on at least 5 of 7 days', 'A baseline number for each child', 'Holiday activities booked for weeks 2 to 4', 'We kept the meal rule too'],
+    items: [
+      { id: 'w1-controls', t: 'Set up Screen Time / Family Link on every device the kids use', when: 'Weekend' },
+      { id: 'w1-roblox', t: 'Link a parent account to the Roblox account, with daily and spending limits', when: 'Weekend' },
+      { id: 'w1-tiktok', t: 'Check the age on the TikTok account (the platform rule is 13+)', when: 'Weekend' },
+      { id: 'w1-meeting', t: 'Hold the 30-minute family meeting: why, the 3 house rules, 5 Yes-list ideas from each child', when: 'Weekend' },
+      { id: 'w1-charger', t: 'Set up the charging spot in the living room', when: 'Weekend' },
+      { id: 'w1-yes', t: 'Put the Yes list on the fridge', when: 'Monday' },
+      { id: 'w1-rhythm', t: 'Start the morning rhythm: daily pack and some exercise before any screens', when: 'Monday' },
+      { id: 'w1-book', t: 'Book 1 or 2 holiday activities per child for weeks 2 to 4', when: 'By Wednesday' },
+      { id: 'w1-reminders', t: 'Add the reminders to your calendar (More tab)', when: 'Monday' },
+      { id: 'w1-review', t: 'Sunday review with your wife (Review tab)', when: 'Sunday' }
+    ] },
+  { n: 2, title: 'Start the budget', budget: 300, short: 60,
+    goal: 'First cut. Each child gets a daily budget they control, with a separate cap on short videos.',
+    items: [
+      { id: 'w2-show', t: 'Show each child their own baseline and the new budget (never side by side)', when: 'Monday' },
+      { id: 'w2-limits', t: 'Set the daily limits in Screen Time / Family Link and Roblox', when: 'Monday' },
+      { id: 'w2-short', t: 'Set the short-video cap, or move short videos to the shared TV or tablet only', when: 'Monday' },
+      { id: 'w2-plan', t: 'Let each child plan how to spend their budget', when: 'Monday' },
+      { id: 'w2-own', t: 'Your daughter plans her own week from December', when: 'Monday' },
+      { id: 'w2-job', t: 'Give your daughter one real household job, and let natural consequences happen', when: 'This week' },
+      { id: 'w2-review', t: 'Sunday review', when: 'Sunday' }
+    ] },
+  { n: 3, title: 'Tighten', budget: 240, short: 45,
+    goal: 'Second cut. Fill the freed time with Yes-list activities, ideally with one of you.',
+    items: [
+      { id: 'w3-yes', t: 'Do one new Yes-list activity together', when: 'This week' },
+      { id: 'w3-praise', t: 'Aim for 3 specific effort praises a day per child (Scripts tab)', when: 'Daily' },
+      { id: 'w3-triplep', t: 'Look for a Triple P Level 2 seminar (Raising resilient children, 7 to 12 track)', when: 'This week' },
+      { id: 'w3-coop', t: 'Try a co-op split-clue puzzle on Saturday', when: 'Saturday' },
+      { id: 'w3-review', t: 'Sunday review', when: 'Sunday' }
+    ] },
+  { n: 4, title: 'Short video down to 30', budget: 180, short: 30,
+    goal: 'Third cut. Short video is the hardest habit; expect pushback this week and hold steady.',
+    items: [
+      { id: 'w4-reports', t: 'Compare the Screen Time / Family Link reports with your log', when: 'Midweek' },
+      { id: 'w4-ask', t: 'Ask each child what is hardest about the budget, and change one thing with them', when: 'This week' },
+      { id: 'w4-review', t: 'Sunday review', when: 'Sunday' }
+    ] },
+  { n: 5, title: 'Near the target', budget: 150, short: 30,
+    goal: 'Close to the guideline (under 2 hours of recreational screens). Plan ahead for the holiday days.',
+    items: [
+      { id: 'w5-xmas', t: 'Plan the Christmas days: what happens on screen-heavy family days', when: 'Monday' },
+      { id: 'w5-sec1', t: 'Register for the Transition to Sec 1 parent seminar (likely January)', when: 'This week' },
+      { id: 'w5-review', t: 'Sunday review', when: 'Sunday' }
+    ] },
+  { n: 6, title: 'Review and set term rules', budget: 150, short: 30,
+    goal: 'Compare everything with Week 1, then agree with the kids what carries into the school term.',
+    items: [
+      { id: 'w6-compare', t: 'Compare every number with the Week 1 baseline (Review tab)', when: 'This week' },
+      { id: 'w6-term', t: 'Agree school-term rules with the kids before term starts', when: 'This week' },
+      { id: 'w6-keep', t: 'Decide what stays: budget, short-video cap, the 3 house rules', when: 'This week' },
+      { id: 'w6-celebrate', t: 'Celebrate together with a Yes-list reward', when: 'Weekend' },
+      { id: 'w6-review', t: 'Sunday review', when: 'Sunday' }
+    ] }
+];
+
+const SCRIPTS = [
+  { t: 'Ending screen time', when: 'The budget or timer runs out',
+    say: ['Give a 5-minute warning first.', 'At time, stand next to them and say it once, calmly: "Time is up. Tablet on the charger, then we [Yes-list thing]."', 'If they argue, repeat the same sentence once. Then follow through yourself: the device goes on the charger.', 'Afterwards, praise the hand-over: "You stopped when the timer went, even mid-game. That was hard."'],
+    avoid: ['Bargaining for extra minutes on the spot', 'Lecturing while they are upset', 'Taking away extra days in anger'] },
+  { t: 'He gets frustrated (puzzle, game, homework)', when: 'Rising frustration, before a meltdown',
+    say: ['"This one is annoying. Want the hint box, or a 2-minute break?"', '"You did not rank up in your game on day one either. Same here."', 'Later, when calm: "Which part was the hardest?"'],
+    avoid: ['"It is easy"', 'Making him finish it now', 'Reasoning with him mid-frustration'] },
+  { t: 'Meltdown in progress', when: 'He is already flooded',
+    say: ['Stay calm and close. Use few words: "I am here. We will sort it out when you are calm."', 'Keep everyone safe. No new consequences while he is flooded.', 'Later, calm (Plan B): "I have noticed that X is hard when Y. What is up?" Listen first. Then share your concern. Then: "Let us find a way that works for both of us."'],
+    avoid: ['Matching his volume', 'Long explanations', 'Deciding a punishment in the moment'] },
+  { t: 'She compares herself with her brother', when: 'Scores, counts, who got more',
+    say: ['"You are not racing him. Look at you: last week you did X, this week Y."', '"Different puzzles for different people. Yours are built for you."'],
+    avoid: ['Telling either child the other one’s score, count or streak', '"Why can you not be more like..."'] },
+  { t: 'Pushback on the house rules', when: '"It is not fair", "just this once"',
+    say: ['"These are house rules for everyone. Me too."', '"You helped write them. If one is not working, bring it to the Sunday chat and we will look at it."'],
+    avoid: ['Changing a rule in the middle of an argument', 'Making an exception you would not make tomorrow'] },
+  { t: 'Morning: first this, then screens', when: 'Holiday mornings',
+    say: ['"When your pack and your exercise are done, then screens."', 'Let them choose the order of tasks.', 'Notice the start: "You started without me asking."'],
+    avoid: ['Screens "just for a bit" before the pack', 'Nagging every 10 minutes: one reminder, then wait'] },
+  { t: 'Effort praise that works', when: 'Any time you catch them trying',
+    say: ['Name exactly what they did, not who they are.', '"You kept trying different ways. That is how it got solved."', '"You were stuck and asked for a hint instead of quitting."', '"You read the whole chapter on your own."', '"You practised that high note again even after it cracked."'],
+    avoid: ['"You are so smart"', 'Praise with a sting: "Good, why can you not do that every day?"'] },
+  { t: 'When we slip as parents', when: 'One of us breaks a house rule',
+    say: ['Say it out loud: "I broke the meal rule. That is on me. Phone is going on the charger."', 'Kids copy what we do more than what we say.'],
+    avoid: ['Pretending it did not happen', 'Arguing about it in front of the kids'] },
+  { t: 'TikTok and the 13+ rule', when: 'Checking her account age',
+    say: ['"TikTok’s own rule is 13 and up. What do you like most about it?"', 'Find another outlet for what she likes: silly videos and dance or singing clips on the family tablet, shared with family only.'],
+    avoid: ['A surprise account deletion with no talk first', 'Making it about her friends'] }
+];
+
+/* ---------- Helpers ---------- */
+const $ = (s) => document.querySelector(s);
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function pad(n) { return String(n).padStart(2, '0'); }
+function ds(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function pd(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+function addDays(s, n) { const d = pd(s); d.setDate(d.getDate() + n); return ds(d); }
+function diffDays(a, b) { return Math.round((pd(b) - pd(a)) / DAY); }
+function todayStr() { return ds(new Date()); }
+function nice(s) { const d = pd(s); return DOW[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()]; }
+function shortD(s) { const d = pd(s); return d.getDate() + ' ' + MON[d.getMonth()]; }
+function isWeekend(s) { const g = pd(s).getDay(); return g === 0 || g === 6; }
+function isNum(v) { return typeof v === 'number' && !isNaN(v); }
+function avg(a) { return a.length ? a.reduce((x, y) => x + y, 0) / a.length : null; }
+function hm(min) {
+  if (!isNum(min)) return '–';
+  min = Math.round(min);
+  const h = Math.floor(min / 60), m = min % 60;
+  return h ? (m ? h + 'h ' + m + 'm' : h + 'h') : m + 'm';
+}
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2200); }
+
+/* ---------- State ---------- */
+function blank() {
+  return { v: 1, settings: { kids: [{ id: 'a', name: 'Son' }, { id: 'b', name: 'Daughter' }], partner: '', start: '2026-11-23', weekendExtra: 60 },
+    days: {}, checks: {}, custom: {}, targets: {}, reviews: {}, lastBackup: null, savedAt: null };
+}
+function fill(d, b) {
+  for (const k in b) {
+    if (d[k] === undefined) d[k] = b[k];
+    else if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k]) && d[k] && typeof d[k] === 'object') fill(d[k], b[k]);
+  }
+  return d;
+}
+function load() {
+  try { const r = localStorage.getItem(KEY); if (r) return fill(JSON.parse(r), blank()); } catch (e) {}
+  return blank();
+}
+let D = load();
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) { toast('Could not save on this phone'); } }
+function save() { D.savedAt = new Date().toISOString(); persist(); markDirty(); }
+
+function day(s, create) {
+  if (!D.days[s]) { if (!create) return null; D.days[s] = { rules: {}, kids: {} }; }
+  const x = D.days[s]; x.rules = x.rules || {}; x.kids = x.kids || {}; return x;
+}
+function kd(s, id, create) {
+  const x = day(s, create); if (!x) return null;
+  if (!x.kids[id]) { if (!create) return null; x.kids[id] = {}; }
+  return x.kids[id];
+}
+function logged(x) {
+  if (!x) return false;
+  if (RULES.some((r) => x.rules[r.id] === true || x.rules[r.id] === false)) return true;
+  return Object.values(x.kids || {}).some((k) => k && Object.values(k).some((v) => v !== null && v !== undefined && v !== ''));
+}
+function kids() { return D.settings.kids; }
+function partner() { return D.settings.partner ? D.settings.partner : 'your wife'; }
+
+/* ---------- Weeks and targets ---------- */
+function weekNo(s) { return Math.floor(diffDays(D.settings.start, s) / 7) + 1; }
+function weekDates(n) { const st = addDays(D.settings.start, (n - 1) * 7); return [0, 1, 2, 3, 4, 5, 6].map((i) => addDays(st, i)); }
+function wk(n) { return WEEKS[Math.max(1, Math.min(n, WEEKS.length)) - 1]; }
+function tgt(n) {
+  if (n < 1) return { budget: null, short: null };
+  const w = wk(n), o = D.targets[Math.min(n, WEEKS.length)] || {};
+  return { budget: isNum(o.budget) ? o.budget : w.budget, short: isNum(o.short) ? o.short : w.short };
+}
+function baseline(id) {
+  const v = weekDates(1).map((s) => kd(s, id)).filter((k) => k && isNum(k.screen)).map((k) => k.screen);
+  return v.length ? Math.round(avg(v)) : null;
+}
+function budgetFor(id, s) {
+  const t = tgt(weekNo(s)); if (t.budget == null) return null;
+  let b = t.budget; const bl = baseline(id);
+  if (bl != null && bl < b) b = bl; // never raise a child above their own baseline
+  return b + (isWeekend(s) ? (Number(D.settings.weekendExtra) || 0) : 0);
+}
+function itemsFor(n) { return wk(n).items.concat((D.custom[n] || []).map((c) => ({ id: c.id, t: c.t, when: 'Added' }))); }
+
+/* ---------- Week stats, tripwires, recommendation ---------- */
+function weekStats(n) {
+  const t = todayStr(), dates = weekDates(n).filter((s) => s <= t);
+  const st = { n, dates, remaining: 7 - dates.length, logged: 0, rulesHeld: 0, rulesSlip: 0, adultHeld: 0, adultSlip: 0, kids: {} };
+  kids().forEach((k) => { st.kids[k.id] = { screen: [], short: [], over: 0, overShort: 0, packDone: 0, packLogged: 0, melt: 0, meltLogged: 0, wins: [] }; });
+  dates.forEach((s) => {
+    const x = day(s); if (!logged(x)) return;
+    st.logged++;
+    const vals = RULES.map((r) => x.rules[r.id]);
+    if (vals.every((v) => v === true)) st.rulesHeld++;
+    if (vals.some((v) => v === false)) st.rulesSlip++;
+    if (x.rules.adults === true) st.adultHeld++;
+    if (x.rules.adults === false) st.adultSlip++;
+    kids().forEach((k) => {
+      const v = x.kids[k.id], o = st.kids[k.id]; if (!v) return;
+      if (isNum(v.screen)) { o.screen.push(v.screen); const b = budgetFor(k.id, s); if (b != null && v.screen > b) o.over++; }
+      if (isNum(v.short)) { o.short.push(v.short); const c = tgt(weekNo(s)).short; if (c != null && v.short > c) o.overShort++; }
+      if (v.pack) { o.packLogged++; if (v.pack === 'done') o.packDone++; }
+      if (isNum(v.melt)) { o.meltLogged++; o.melt += v.melt; }
+      if (v.win) o.wins.push({ s, t: v.win });
+    });
+  });
+  return st;
+}
+function tripwires(n) {
+  const s = weekStats(n), p = n > 1 ? weekStats(n - 1) : null, p2 = n > 2 ? weekStats(n - 2) : null, list = [];
+  const add = (id, fired, title, action, status) => list.push({ id, fired: !!fired, title, action, status });
+  add('logging', s.logged + s.remaining < 4, 'Fewer than 4 days logged',
+    'The log is too heavy. Next week, log the house rules only and skip the rest.', s.logged + ' logged so far');
+  add('rules', s.logged > 0 && s.rulesHeld + s.remaining < 5, 'House rules held on fewer than 5 of 7 days',
+    'Do not cut the budget next week. Fix the routine first: same time, same place, devices on the charger.', s.rulesHeld + ' of 7 held');
+  add('adults', s.adultSlip >= 2, 'We broke the house rules on 2 or more days',
+    'Reset between the two of you before the next talk with the kids. The rules apply to everyone.', s.adultSlip + ' slips');
+  kids().forEach((k) => {
+    const o = s.kids[k.id], nm = k.name;
+    add('over-' + k.id, o.over >= 4, nm + ': over budget on 4 or more days',
+      'Hold the budget next week for both children. Check the Screen Time / Family Link limits really enforce it, then let ' + nm + ' re-plan how to spend it.', o.over + ' days over');
+    add('short-' + k.id, o.overShort >= 3, nm + ': short video over the cap on 3 or more days',
+      'Short videos move to the shared TV or tablet only.', o.overShort + ' days over');
+    add('pack-' + k.id, o.packLogged >= 3 && o.packDone <= 2, nm + ': daily pack done on 2 or fewer days',
+      'Make the pack shorter or easier, and check the order is "first this, then screens".', o.packDone + ' done');
+    const pm = p ? p.kids[k.id].melt : null, p2m = p2 ? p2.kids[k.id].melt : null;
+    const rising = p && p2 && o.melt > pm && pm > p2m;
+    add('melt-' + k.id, rising || o.melt >= 5, nm + ': meltdowns rising 2 weeks running, or 5+ in a week',
+      'Note what came right before each one (hunger, tiredness, a screen ending). If it keeps rising once school starts, talk to the form teacher or school counsellor.', o.melt + ' this week');
+  });
+  return { stats: s, list };
+}
+function recommendation(n) {
+  const tw = tripwires(n), fired = (pre) => tw.list.filter((t) => t.fired && t.id.indexOf(pre) === 0);
+  const cur = tgt(n).budget, next = tgt(n + 1);
+  if (fired('rules').length || fired('adults').length)
+    return { tone: 'warn', text: cur == null ? 'Delay the first cut by a week. Get the house rules holding first.' : 'Hold the budget at ' + hm(cur) + ' next week. The house rules come first.' };
+  if (fired('over-').length)
+    return { tone: 'warn', text: 'Hold at ' + (cur == null ? 'the current level' : hm(cur)) + ' for both children next week. Fix enforcement before cutting again (one child stepping down alone invites comparison).' };
+  if (n >= WEEKS.length) return { tone: 'good', text: 'Keep ' + hm(cur) + ' a weekday, the short-video cap and the 3 house rules for the school term.' };
+  if (fired('logging').length) return { tone: 'warn', text: 'Not enough logged days to judge. Hold steady and log the house rules every day next week.' };
+  return { tone: 'good', text: 'On track. Next week: ' + hm(next.budget) + ' a weekday, short video up to ' + hm(next.short) + '. Celebrate with something from the Yes list.' };
+}
+
+/* ---------- Rendering ---------- */
+let view = 'today', curDate = todayStr(), revWeek = null, followToday = true;
+const ICON = {
+  today: '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M9 15l2 2 4-4"/></svg>',
+  plan: '<svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>',
+  review: '<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  scripts: '<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>',
+  more: '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>'
+};
+const TABS = [['today', 'Today'], ['plan', 'Plan'], ['review', 'Review'], ['scripts', 'Scripts'], ['more', 'More']];
+
+function render() {
+  const n = weekNo(todayStr());
+  $('#wk').textContent = n < 1 ? 'Week 1 starts ' + nice(D.settings.start) : 'Week ' + n + ' · ' + (n > WEEKS.length ? 'Maintain' : wk(n).title);
+  $('#tabbar').innerHTML = TABS.map(([v, l]) => '<button class="' + (view === v ? 'on' : '') + '" data-act="tab" data-v="' + v + '">' + ICON[v] + l + '</button>').join('');
+  const f = { today: vToday, plan: vPlan, review: vReview, scripts: vScripts, more: vMore }[view];
+  $('#main').innerHTML = f();
+}
+
+function seg(act, key, opts, val, extra) {
+  return '<div class="seg">' + opts.map(([v, l, cls]) => '<button class="' + (val === v ? 'on ' + (cls || '') : '') + '" data-act="' + act + '" data-k="' + key + '" data-v="' + v + '"' + (extra || '') + '>' + l + '</button>').join('') + '</div>';
+}
+function checkRow(it, done) {
+  return '<div class="check ' + (done ? 'done' : '') + '" data-act="tick" data-k="' + esc(it.id) + '"><div class="box"></div><div><div class="ct">' + esc(it.t) + '</div><div class="when">' + esc(it.when || '') + (done ? ' · done ' + shortD(done) : '') + '</div></div></div>';
+}
+function budgetChip(id, s) {
+  const k = kd(s, id), b = budgetFor(id, s);
+  if (!k || !isNum(k.screen)) return b == null ? '' : '<span class="chip">Budget ' + hm(b) + '</span>';
+  if (b == null) return '<span class="chip">' + hm(k.screen) + '</span>';
+  const d = k.screen - b;
+  return d > 0 ? '<span class="chip bad">' + hm(d) + ' over ' + hm(b) + '</span>' : '<span class="chip good">Within ' + hm(b) + '</span>';
+}
+
+function vToday() {
+  const s = curDate, t = todayStr(), n = weekNo(s), x = day(s) || { rules: {}, kids: {} };
+  let h = '<div class="datebar"><button class="ib" data-act="day" data-v="-1" aria-label="Previous day">‹</button><div><b>' + (s === t ? 'Today' : nice(s)) + '</b><span class="mute small">' + (s === t ? nice(s) : (diffDays(s, t) === 1 ? 'Yesterday' : '')) + '</span></div><button class="ib" data-act="day" data-v="1" aria-label="Next day"' + (s >= t ? ' disabled' : '') + '>›</button></div>';
+
+  // Week banner
+  if (n < 1) {
+    h += '<div class="card"><div class="kicker">Before Week 1</div><div class="h2">Week 1 starts ' + nice(D.settings.start) + '</div><div class="mute">Use the checklist below. The house rules start on Monday, for everyone.</div></div>';
+  } else {
+    const tg = tgt(n), w = wk(n);
+    h += '<div class="card"><div class="kicker">Week ' + n + (n > WEEKS.length ? ' · after the 6-week plan' : '') + '</div><div class="h2">' + esc(n > WEEKS.length ? 'Maintain' : w.title) + '</div><div class="mute small">' +
+      (tg.budget == null ? 'No budget yet. Just log what happens.' : 'Weekday budget ' + hm(tg.budget) + ' · weekend +' + hm(Number(D.settings.weekendExtra) || 0) + ' · short video up to ' + hm(tg.short)) + '</div></div>';
+  }
+
+  // This week's checklist: at the top before Week 1 starts, at the bottom after
+  let cl = '';
+  const cn = Math.max(1, Math.min(n, WEEKS.length));
+  if (n <= WEEKS.length) {
+    const its = itemsFor(cn), open = its.filter((i) => !D.checks[i.id]), done = its.length - open.length;
+    cl = '<div class="card"><div class="ch">' + (n < 1 ? 'Setup checklist' : 'Week ' + cn + ' checklist') + ' <span class="chip">' + done + ' of ' + its.length + '</span></div>' +
+      (open.length ? open.map((i) => checkRow(i, null)).join('') : '<div class="mute">All done this week.</div>') +
+      (done ? '<div class="when" style="padding-top:8px">' + done + ' done. See the Plan tab.</div>' : '') + '</div>';
+  }
+  if (n < 1) h += cl;
+
+  // Backup nudge
+  const lb = D.lastBackup ? diffDays(D.lastBackup.at.slice(0, 10), t) : null;
+  if (Object.keys(D.days).length >= 3 && (lb == null || lb >= 7))
+    h += '<div class="note warn">' + (lb == null ? 'No backup yet.' : 'Last backup ' + lb + ' days ago.') + ' Your log lives only on this phone. <button class="btn sm ghost" data-act="tab" data-v="more">Back up</button></div>';
+
+  // Debrief prompt
+  h += '<div class="note info"><b>Evening debrief, 2 minutes.</b> Ask ' + esc(partner()) + ': How did screens end today? Any meltdowns? One win?</div>';
+
+  // House rules
+  h += '<div class="card"><div class="ch">House rules <button class="btn sm ghost" data-act="allheld">All held</button></div>';
+  RULES.forEach((r) => {
+    h += '<div class="row"><div class="lbl">' + esc(r.label) + '</div>' + seg('rule', r.id, [[true, 'Held', 'good'], [false, 'Slipped', 'bad']], x.rules[r.id]) + '</div>';
+  });
+  h += '<div class="row"><div class="lbl">We adults kept them too</div>' + seg('rule', 'adults', [[true, 'Held', 'good'], [false, 'Slipped', 'bad']], x.rules.adults) + '</div></div>';
+
+  // Per child
+  kids().forEach((k) => {
+    const v = (x.kids && x.kids[k.id]) || {};
+    h += '<div class="card"><div class="ch">' + esc(k.name) + ' <span id="chip-' + k.id + '">' + budgetChip(k.id, s) + '</span></div>' +
+      '<div class="row"><div class="lbl">Screen time<div class="when">From Screen Time / Family Link</div></div><div class="inp"><input class="hm" type="number" inputmode="numeric" step="1" min="0" max="18" id="sh-' + k.id + '" data-act="screen" data-k="' + k.id + '" value="' + (isNum(v.screen) ? Math.floor(v.screen / 60) : '') + '" placeholder="0"><span class="mute small">h</span><input class="hm" type="number" inputmode="numeric" step="5" min="0" max="59" id="sm-' + k.id + '" data-act="screen" data-k="' + k.id + '" value="' + (isNum(v.screen) ? v.screen % 60 : '') + '" placeholder="0"><span class="mute small">m</span></div></div>' +
+      '<div class="row"><div class="lbl">Short video<div class="when">Shorts, TikTok</div></div><div class="inp"><input type="number" inputmode="numeric" step="5" min="0" max="900" data-act="short" data-k="' + k.id + '" value="' + (isNum(v.short) ? v.short : '') + '" placeholder="0"><span class="mute small">min</span></div></div>' +
+      '<div class="row"><div class="lbl">Daily pack</div>' + seg('pack', k.id, [['done', 'Done', 'good'], ['part', 'Part'], ['skip', 'Skipped', 'bad']], v.pack) + '</div>' +
+      '<div class="row"><div class="lbl">Meltdowns</div>' + seg('melt', k.id, [[0, '0', 'good'], [1, '1'], [2, '2+', 'bad']], v.melt) + '</div>' +
+      '<div style="padding-top:8px"><input class="txt" type="text" maxlength="200" placeholder="One win today (optional)" data-act="win" data-k="' + k.id + '" value="' + esc(v.win || '') + '"></div></div>';
+  });
+
+  if (n >= 1) h += cl;
+  h += '<div class="build">Saves on this phone as you tap. <span id="syncline">' + syncLine() + '</span></div>';
+  return h;
+}
+
+function vPlan() {
+  const cur = weekNo(todayStr());
+  let h = '<div class="note info">Six-week taper. Cut short video hardest, protect some game time, add Yes-list activities as screens come down. Targets are the same for both children.</div>';
+  WEEKS.forEach((w) => {
+    const dates = weekDates(w.n), its = itemsFor(w.n), done = its.filter((i) => D.checks[i.id]).length, t = tgt(w.n);
+    const open = w.n === Math.max(1, Math.min(cur, WEEKS.length));
+    h += '<details class="card"' + (open ? ' open' : '') + '><summary><div class="ch"><span>Week ' + w.n + ' · ' + esc(w.title) + '</span><span class="chip ' + (done === its.length ? 'good' : '') + '">' + done + '/' + its.length + '</span></div><div class="when">' + shortD(dates[0]) + ' – ' + shortD(dates[6]) + (w.n === cur ? ' · this week' : '') + '</div></summary>' +
+      '<p class="small">' + esc(w.goal) + '</p>';
+    if (w.budget != null) {
+      h += '<div class="row"><div class="lbl">Weekday budget</div><div class="inp"><input type="number" inputmode="decimal" step="0.25" min="0" max="12" data-act="tbudget" data-k="' + w.n + '" value="' + +(t.budget / 60).toFixed(2) + '"><span class="mute small">hrs</span></div></div>' +
+        '<div class="row"><div class="lbl">Short-video cap</div><div class="inp"><input type="number" inputmode="numeric" step="5" min="0" max="240" data-act="tshort" data-k="' + w.n + '" value="' + t.short + '"><span class="mute small">min</span></div></div>';
+    }
+    if (w.success) h += '<div class="q">Week ' + w.n + ' succeeds if</div><ul class="say small">' + w.success.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>';
+    h += '<div style="margin-top:10px">' + its.map((i) => checkRow(i, D.checks[i.id])).join('') + '</div>';
+    h += '<div class="addrow"><input type="text" maxlength="160" placeholder="Add your own item" id="add-' + w.n + '"><button class="btn sm ghost" data-act="additem" data-k="' + w.n + '">Add</button></div></details>';
+  });
+  h += '<div class="card"><div class="ch">After week 6</div><div class="small">Keep the Sunday review going, weekly at first, then every other week once the numbers are steady. Once a month, record a 2-minute retell from each child in each language (the calendar reminder covers it).</div></div>';
+  return h;
+}
+
+function defaultReviewWeek() { const n = weekNo(todayStr()); return Math.max(1, Math.min(n, WEEKS.length + 6)); }
+
+function vReview() {
+  const n = revWeek || defaultReviewWeek(), cur = weekNo(todayStr()), tw = tripwires(n), s = tw.stats, rec = recommendation(n), dates = weekDates(n);
+  const prev = n > 1 ? weekStats(n - 1) : null, r = D.reviews[n] || {};
+  let h = '<div class="datebar"><button class="ib" data-act="rweek" data-v="-1"' + (n <= 1 ? ' disabled' : '') + '>‹</button><div><b>Week ' + n + ' review</b><span class="mute small">' + shortD(dates[0]) + ' – ' + shortD(dates[6]) + (n === cur && s.remaining ? ' · ' + s.remaining + ' days to go' : '') + '</span></div><button class="ib" data-act="rweek" data-v="1"' + (n >= Math.max(1, cur) ? ' disabled' : '') + '>›</button></div>';
+
+  if (cur < 1) h += '<div class="note info">Nothing to review yet. Week 1 starts ' + nice(D.settings.start) + '.</div>';
+
+  // Household numbers
+  h += '<div class="card"><div class="ch">The household</div><div class="grid2">' +
+    stat(s.logged + '/7', 'days logged') + stat(s.rulesHeld + '/7', 'all 3 rules held') +
+    stat(s.adultSlip ? s.adultSlip + (s.adultSlip === 1 ? ' slip' : ' slips') : (s.adultHeld ? 'Kept' : '–'), 'adults kept the rules') +
+    stat(prev ? (s.rulesHeld - prev.rulesHeld >= 0 ? '+' : '') + (s.rulesHeld - prev.rulesHeld) : '–', 'rule days vs last week') + '</div></div>';
+
+  // Per child (separate cards, never ranked)
+  kids().forEach((k) => {
+    const o = s.kids[k.id], a = avg(o.screen), bl = baseline(k.id), sh = avg(o.short), pm = prev ? prev.kids[k.id].melt : null;
+    const vsBase = a != null && bl ? Math.round((a - bl) / bl * 100) : null;
+    h += '<div class="card"><div class="ch">' + esc(k.name) + '<span class="chip">compared with own past only</span></div><div class="grid2">' +
+      stat(hm(a), 'avg screen a day' + (tgt(n).budget != null ? ' (budget ' + hm(tgt(n).budget) + ')' : '')) +
+      stat(vsBase == null ? (n === 1 ? 'Baseline' : '–') : (vsBase > 0 ? '+' : '') + vsBase + '%', 'vs Week 1 baseline' + (bl ? ' (' + hm(bl) + ')' : '')) +
+      stat(hm(sh), 'avg short video' + (tgt(n).short != null ? ' (cap ' + hm(tgt(n).short) + ')' : '')) +
+      stat(o.over + ' days', 'over budget') +
+      stat(o.packDone + '/' + o.packLogged, 'pack done / logged') +
+      stat(o.melt + (pm != null ? ' <span class="small mute">(was ' + pm + ')</span>' : ''), 'meltdowns') + '</div>' +
+      (o.wins.length ? '<div class="q">Wins</div><ul class="say small">' + o.wins.map((w) => '<li><span class="mute">' + DOW[pd(w.s).getDay()] + '</span> ' + esc(w.t) + '</li>').join('') + '</ul>' : '') + '</div>';
+  });
+
+  // Tripwires
+  const fired = tw.list.filter((t) => t.fired), clear = tw.list.filter((t) => !t.fired);
+  const twRow = (t) => '<div class="tw"><div class="dot ' + (t.fired ? 'fired' : '') + '"></div><div><div class="small"><b>' + esc(t.title) + '</b> <span class="mute">· ' + esc(t.status) + '</span></div>' + (t.fired ? '<div class="small">' + esc(t.action) + '</div>' : '') + '</div></div>';
+  h += '<div class="card"><div class="ch">Tripwires <span class="chip ' + (fired.length ? 'bad' : 'good') + '">' + (fired.length ? fired.length + ' fired' : 'all clear') + '</span></div><div class="when">Agreed in advance, so the decision is made calmly, not in the moment.</div>' +
+    fired.map(twRow).join('') +
+    (clear.length ? '<details><summary class="small mute" style="padding:10px 0;border-top:1px solid var(--line);cursor:pointer">' + clear.length + ' not fired · show</summary>' + clear.map(twRow).join('') + '</details>' : '') + '</div>';
+
+  h += '<div class="note ' + rec.tone + '"><b>Suggested for next week.</b> ' + esc(rec.text) + '</div>';
+
+  // Conversation
+  h += '<div class="card"><div class="ch">Sunday talk with ' + esc(partner()) + '</div><div class="when">10 minutes. Numbers first, then these.</div>' +
+    '<div class="q">What worked this week?</div><textarea data-act="rv" data-k="worked">' + esc(r.worked || '') + '</textarea>' +
+    '<div class="q">What slipped, and why?</div><textarea data-act="rv" data-k="slipped">' + esc(r.slipped || '') + '</textarea>' +
+    '<div class="q">One change for next week</div><textarea data-act="rv" data-k="change">' + esc(r.change || '') + '</textarea>' +
+    '<div class="q">What we agreed</div><textarea data-act="rv" data-k="decision" placeholder="e.g. Hold at 5h; short videos on the TV only">' + esc(r.decision || '') + '</textarea>' +
+    '<div class="when" id="rvsaved" style="margin-top:6px">' + (r.at ? 'Saved ' + nice(r.at.slice(0, 10)) : 'Saves as you type.') + '</div></div>';
+
+  // Trends
+  if (cur >= 1) {
+    h += '<h3 class="sec">Trends</h3>';
+    kids().forEach((k) => { h += '<div class="card"><div class="ch">' + esc(k.name) + ': daily screen time</div>' + chart(k.id) + '</div>'; });
+    h += '<div class="card"><div class="ch">House rules, day by day</div>' + rulesCal() + '<div class="legend"><span><i style="border-color:var(--good);border-top-width:8px"></i>all held</span><span><i style="border-color:var(--bad);border-top-width:8px"></i>slipped</span><span><i style="border-color:var(--chip);border-top-width:8px"></i>not logged</span></div></div>';
+  }
+
+  // Past decisions
+  const past = Object.keys(D.reviews).map(Number).filter((w) => D.reviews[w].decision).sort((a, b) => b - a);
+  if (past.length) h += '<h3 class="sec">What we agreed</h3><div class="card">' + past.map((w) => '<div class="row" style="display:block"><div class="when">Week ' + w + '</div><div class="small">' + esc(D.reviews[w].decision) + '</div></div>').join('') + '</div>';
+  return h;
+}
+function stat(v, k) { return '<div class="stat"><div class="v">' + v + '</div><div class="k">' + esc(k) + '</div></div>'; }
+
+function chart(id) {
+  const start = D.settings.start, total = WEEKS.length * 7, t = todayStr();
+  const last = Math.min(diffDays(start, t), total - 1);
+  const W = 320, H = 150, L = 24, R = 6, T = 8, B = 20;
+  const pts = [];
+  for (let i = 0; i <= last; i++) { const s = addDays(start, i), k = kd(s, id); if (k && isNum(k.screen)) pts.push([i, k.screen]); }
+  const bl = baseline(id);
+  let ymax = Math.max(480, bl || 0, ...pts.map((p) => p[1]));
+  ymax = Math.ceil(ymax / 120) * 120;
+  const x = (i) => L + i * (W - L - R) / (total - 1), y = (v) => T + (H - T - B) * (1 - v / ymax);
+  let g = '';
+  for (let v = 0; v <= ymax; v += 120) g += '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '"/><text class="lab" x="' + (L - 4) + '" y="' + (y(v) + 3) + '" text-anchor="end">' + v / 60 + 'h</text>';
+  for (let w = 0; w < WEEKS.length; w++) g += '<text class="lab" x="' + x(w * 7 + 3) + '" y="' + (H - 6) + '" text-anchor="middle">W' + (w + 1) + '</text>';
+  g += '<line class="guide" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(120) + '" y2="' + y(120) + '"/>';
+  if (bl != null) g += '<line class="base" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(bl) + '" y2="' + y(bl) + '"/>';
+  let bp = '', pen = false;
+  for (let i = 0; i < total; i++) {
+    const b = budgetFor(id, addDays(start, i));
+    if (b == null) { pen = false; continue; }
+    bp += (pen ? 'L' : 'M') + x(i - 0.5 < 0 ? 0 : i - 0.5) + ' ' + y(b) + 'L' + x(Math.min(i + 0.5, total - 1)) + ' ' + y(b);
+    pen = true;
+  }
+  if (bp) g += '<path class="bud" d="' + bp + '"/>';
+  if (pts.length > 1) g += '<polyline class="act" points="' + pts.map((p) => x(p[0]) + ',' + y(p[1])).join(' ') + '"/>';
+  g += pts.map((p) => '<circle class="actd" cx="' + x(p[0]) + '" cy="' + y(p[1]) + '" r="2.4"/>').join('');
+  return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Daily screen time">' + g + '</svg>' +
+    '<div class="legend"><span><i style="border-color:var(--accent)"></i>actual</span><span><i style="border-color:var(--ink);border-top-style:dashed;opacity:.6"></i>budget</span>' + (bl != null ? '<span><i style="border-color:var(--warn);border-top-style:dotted"></i>baseline ' + hm(bl) + '</span>' : '') + '<span><i style="border-color:var(--good);border-top-style:dotted"></i>2h guideline</span></div>' +
+    (pts.length ? '' : '<div class="when">No screen time logged yet.</div>');
+}
+function rulesCal() {
+  const t = todayStr(), cur = weekNo(t), upto = Math.max(1, Math.min(cur, WEEKS.length));
+  let h = '<div class="cal"><span></span>' + ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d) => '<span>' + d + '</span>').join('');
+  for (let n = 1; n <= upto; n++) {
+    h += '<span>W' + n + '</span>';
+    weekDates(n).forEach((s) => {
+      const x = day(s); let c = '';
+      if (s > t) c = 'fut';
+      else if (x && RULES.every((r) => x.rules[r.id] === true)) c = 'held';
+      else if (x && RULES.some((r) => x.rules[r.id] === false)) c = 'slip';
+      h += '<div class="c ' + c + '" title="' + nice(s) + '"></div>';
+    });
+  }
+  return h + '</div>';
+}
+
+function vScripts() {
+  return '<div class="note info">What to say in the moment. Keep it short, calm, and the same every time.</div>' +
+    SCRIPTS.map((sc, i) => '<details class="card"' + (i === 0 ? ' open' : '') + '><summary><div class="ch">' + esc(sc.t) + '</div><div class="when">' + esc(sc.when) + '</div></summary>' +
+      '<div class="q">Say / do</div><ul class="say">' + sc.say.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
+      '<div class="q">Avoid</div><ul class="say mute">' + sc.avoid.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul></details>').join('');
+}
+
+function vMore() {
+  const g = ghCfg(), st = D.settings, lb = D.lastBackup;
+  return '<div class="card"><div class="ch">Family</div>' +
+    kids().map((k, i) => '<label class="field"><span>Child ' + (i + 1) + ' name (stays on this phone)</span><input type="text" maxlength="30" data-act="kidname" data-k="' + k.id + '" value="' + esc(k.name) + '"></label>').join('') +
+    '<label class="field"><span>Partner name, for the prompts</span><input type="text" maxlength="30" data-act="setting" data-k="partner" value="' + esc(st.partner) + '" placeholder="your wife"></label>' +
+    '<label class="field"><span>Week 1 starts (a Monday)</span><input type="date" data-act="setting" data-k="start" value="' + esc(st.start) + '"></label>' +
+    '<label class="field"><span>Extra on weekends (minutes)</span><input type="number" inputmode="numeric" step="15" min="0" max="240" data-act="setting" data-k="weekendExtra" value="' + esc(st.weekendExtra) + '"></label></div>' +
+
+    '<div class="card"><div class="ch">Reminders</div><div class="small">Adds three repeating events to your calendar: a nightly 60-second log at 9:30pm, the Sunday review at 8pm, and a monthly retell recording on the first Saturday.</div><div class="actions"><button class="btn" data-act="ics">Add to calendar</button></div></div>' +
+
+    '<div class="card"><div class="ch">Backup</div><div class="small">Your log lives only on this phone. Deleting the home-screen icon deletes it. ' + (lb ? 'Last backup: ' + nice(lb.at.slice(0, 10)) + ' (' + (lb.how === 'github' ? 'GitHub' : 'file') + ').' : 'No backup yet.') + '</div>' +
+    '<div class="actions"><button class="btn" data-act="savefile">Save backup file</button><label class="btn ghost">Restore from file<input type="file" accept="application/json,.json" data-act="restorefile" hidden></label></div>' +
+    '<div class="when" style="margin-top:8px">Restore merges: entries on this phone are kept, missing ones are added.</div></div>' +
+
+    '<div class="card"><div class="ch">Automatic backup to GitHub</div><div class="small">Saves your log to a <b>private</b> repo a few seconds after each change. Use a fine-grained token limited to that one repo, with Contents: read and write.</div>' +
+    '<label class="field"><span>GitHub owner</span><input type="text" autocapitalize="off" autocorrect="off" data-gh="owner" value="' + esc(g.owner || '') + '"></label>' +
+    '<label class="field"><span>Private repo</span><input type="text" autocapitalize="off" autocorrect="off" data-gh="repo" value="' + esc(g.repo || '') + '" placeholder="family-coach-data"></label>' +
+    '<label class="field"><span>File path</span><input type="text" autocapitalize="off" autocorrect="off" data-gh="path" value="' + esc(g.path || 'family-coach.json') + '"></label>' +
+    '<label class="field"><span>Token (stays on this phone, never in backup files)</span><input type="password" autocomplete="off" data-gh="token" value="' + esc(g.token || '') + '"></label>' +
+    '<div class="actions"><button class="btn" data-act="ghsave">Save and back up now</button><button class="btn ghost" data-act="ghpull">Restore from GitHub</button>' + (g.token ? '<button class="btn ghost" data-act="ghclear">Forget token</button>' : '') + '</div>' +
+    '<div class="when" style="margin-top:8px" id="syncline">' + syncLine() + '</div></div>' +
+    '<div class="build">Family Coach · build <span title="build">' + BUILD + '</span></div>';
+}
+
+/* ---------- GitHub backup ---------- */
+function ghCfg() { try { return JSON.parse(localStorage.getItem(GHKEY)) || {}; } catch (e) { return {}; } }
+function ghOn() { const g = ghCfg(); return !!(g.owner && g.repo && g.token); }
+function ghUrl(g) { return 'https://api.github.com/repos/' + encodeURIComponent(g.owner) + '/' + encodeURIComponent(g.repo) + '/contents/' + (g.path || 'family-coach.json').split('/').map(encodeURIComponent).join('/'); }
+function ghHeaders(g) { return { 'Authorization': 'Bearer ' + g.token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }; }
+function ghErr(st) {
+  return ({ 401: 'token rejected (expired or mistyped)', 403: 'token has no write access to this repo', 404: 'repo not found, or the token does not cover it', 409: 'conflict, will retry', 422: 'GitHub rejected the file' })[st] || ('GitHub error ' + st);
+}
+function b64e(str) { const b = new TextEncoder().encode(str); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(s); }
+function b64d(s) { const bin = atob(s.replace(/\s/g, '')); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new TextDecoder().decode(u); }
+async function ghGet(g) {
+  const r = await fetch(ghUrl(g), { headers: ghHeaders(g), cache: 'no-store' });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(ghErr(r.status));
+  const j = await r.json();
+  return { sha: j.sha, data: JSON.parse(b64d(j.content)) };
+}
+let syncing = false, syncAgain = false, syncTimer = null, syncMsg = '';
+function syncLine() {
+  if (syncMsg) return esc(syncMsg);
+  if (!ghOn()) return 'GitHub backup is off.';
+  return localStorage.getItem(DIRTY) ? 'Changes waiting to back up.' : (D.lastBackup && D.lastBackup.how === 'github' ? 'Backed up to GitHub.' : '');
+}
+function setSync(m) { syncMsg = m; const el = document.getElementById('syncline'); if (el) el.textContent = m; }
+function markDirty() {
+  localStorage.setItem(DIRTY, '1');
+  if (!ghOn()) return;
+  clearTimeout(syncTimer); syncTimer = setTimeout(ghPush, 6000);
+}
+async function ghPush() {
+  if (!ghOn() || !navigator.onLine) return;
+  if (syncing) { syncAgain = true; return; }
+  syncing = true; setSync('Backing up…');
+  const g = ghCfg();
+  try {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const cur = await ghGet(g);
+      if (cur && cur.data) mergeIn(cur.data, true); // never overwrite entries made on another device
+      const body = { message: 'Backup ' + new Date().toISOString(), content: b64e(JSON.stringify(D)) };
+      if (cur) body.sha = cur.sha;
+      const r = await fetch(ghUrl(g), { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHeaders(g)), body: JSON.stringify(body) });
+      if (r.ok) {
+        localStorage.removeItem(DIRTY);
+        D.lastBackup = { at: new Date().toISOString(), how: 'github' }; persist();
+        const n = new Date(); setSync('Backed up to GitHub at ' + pad(n.getHours()) + ':' + pad(n.getMinutes()) + '.');
+        return;
+      }
+      if (r.status !== 409 && r.status !== 422) throw new Error(ghErr(r.status));
+    }
+    throw new Error('kept conflicting, try again');
+  } catch (e) {
+    setSync('Backup failed: ' + e.message);
+  } finally {
+    syncing = false;
+    if (syncAgain) { syncAgain = false; setTimeout(ghPush, 1000); }
+  }
+}
+
+/* ---------- Merge (restore) ---------- */
+function deepFill(a, b) {
+  if (a === undefined || a === null || a === '') return b;
+  if (typeof a === 'object' && !Array.isArray(a) && b && typeof b === 'object' && !Array.isArray(b)) { for (const k in b) a[k] = deepFill(a[k], b[k]); return a; }
+  return a;
+}
+function mergeIn(inc, quiet) {
+  if (!inc || typeof inc !== 'object' || !inc.days || typeof inc.days !== 'object') throw new Error('This is not a Family Coach backup.');
+  let added = 0;
+  for (const s in inc.days) { if (!D.days[s]) added++; D.days[s] = deepFill(D.days[s], inc.days[s]); }
+  ['checks', 'targets', 'reviews'].forEach((k) => { D[k] = deepFill(D[k] || {}, inc[k] || {}); });
+  for (const n in (inc.custom || {})) {
+    const mine = D.custom[n] = D.custom[n] || [];
+    (inc.custom[n] || []).forEach((c) => { if (!mine.some((m) => m.id === c.id)) mine.push(c); });
+  }
+  if (quiet) persist(); else save();
+  return added;
+}
+
+/* ---------- Calendar reminders (.ics) ---------- */
+function icsText() {
+  const now = new Date(), stamp = now.getUTCFullYear() + pad(now.getUTCMonth() + 1) + pad(now.getUTCDate()) + 'T' + pad(now.getUTCHours()) + pad(now.getUTCMinutes()) + '00Z';
+  const t = todayStr(), from = D.settings.start > t ? D.settings.start : t;
+  const compact = (s) => s.replace(/-/g, '');
+  let sun = from; while (pd(sun).getDay() !== 0) sun = addDays(sun, 1);
+  const f = pd(from); let sat = ds(new Date(f.getFullYear(), f.getMonth() + 1, 1)); while (pd(sat).getDay() !== 6) sat = addDays(sat, 1);
+  const ev = (uid, date, time, dur, rule, sum, desc) => ['BEGIN:VEVENT', 'UID:' + uid + '@family-coach', 'DTSTAMP:' + stamp, 'DTSTART:' + compact(date) + 'T' + time, 'DURATION:' + dur, 'RRULE:' + rule, 'SUMMARY:' + sum, 'DESCRIPTION:' + desc, 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + sum, 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT'].join('\r\n');
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Family Coach//EN', 'CALSCALE:GREGORIAN',
+    ev('daily-log', from, '213000', 'PT5M', 'FREQ=DAILY', 'Family Coach: 60-second log', 'Ask how screens ended\\, any meltdowns\\, one win. Then log it.'),
+    ev('sunday-review', sun, '200000', 'PT20M', 'FREQ=WEEKLY;BYDAY=SU', 'Family Coach: Sunday review', 'Numbers first\\, then three questions\\, then one decision together.'),
+    ev('monthly-retell', sat, '100000', 'PT20M', 'FREQ=MONTHLY;BYDAY=1SA', 'Record 2-minute retells', 'Each child\\, each language\\, 2 minutes. Keep the recordings to compare month to month.'),
+    'END:VCALENDAR'].join('\r\n');
+}
+function download(text, name, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement('a'); a.href = url;
+  if (type !== 'text/calendar') a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+async function saveFile() {
+  const text = JSON.stringify(D, null, 1), name = 'family-coach-' + todayStr() + '.json';
+  try {
+    const file = new File([text], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: name });
+      D.lastBackup = { at: new Date().toISOString(), how: 'file' }; save(); render(); toast('Backup saved'); return;
+    }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  download(text, name, 'application/json');
+  D.lastBackup = { at: new Date().toISOString(), how: 'file' }; save(); render(); toast('Backup downloaded');
+}
+
+/* ---------- Events ---------- */
+function parseVal(v) { return v === 'true' ? true : v === 'false' ? false : (/^\d+$/.test(v) ? Number(v) : v); }
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]'); if (!el || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return;
+  const a = el.dataset.act, k = el.dataset.k, v = el.dataset.v;
+  if (a === 'tab') { view = v; if (v === 'today') { curDate = todayStr(); followToday = true; } render(); window.scrollTo(0, 0); return; }
+  if (a === 'day') { const nd = addDays(curDate, Number(v)); if (nd <= todayStr()) { curDate = nd; followToday = nd === todayStr(); render(); } return; }
+  if (a === 'rweek') { revWeek = Math.max(1, (revWeek || defaultReviewWeek()) + Number(v)); render(); return; }
+  if (a === 'rule') { const x = day(curDate, true), pv = parseVal(v); x.rules[k] = x.rules[k] === pv ? null : pv; save(); render(); return; }
+  if (a === 'allheld') { const x = day(curDate, true); RULES.forEach((r) => { x.rules[r.id] = true; }); x.rules.adults = true; save(); render(); toast('All held. Nice.'); return; }
+  if (a === 'pack' || a === 'melt') { const o = kd(curDate, k, true), pv = parseVal(v); o[a] = o[a] === pv ? null : pv; save(); render(); return; }
+  if (a === 'tick') { if (D.checks[k]) delete D.checks[k]; else D.checks[k] = todayStr(); save(); render(); return; }
+  if (a === 'additem') { const inp = document.getElementById('add-' + k), t = inp && inp.value.trim(); if (!t) return; (D.custom[k] = D.custom[k] || []).push({ id: 'c' + Date.now(), t }); save(); render(); return; }
+  if (a === 'ics') { download(icsText(), 'family-coach-reminders.ics', 'text/calendar'); return; }
+  if (a === 'savefile') { saveFile(); return; }
+  if (a === 'ghsave') {
+    const g = {}; document.querySelectorAll('[data-gh]').forEach((i) => { g[i.dataset.gh] = i.value.trim(); });
+    if (!g.owner || !g.repo || !g.token) { toast('Fill in owner, repo and token'); return; }
+    localStorage.setItem(GHKEY, JSON.stringify(g)); localStorage.setItem(DIRTY, '1'); ghPush(); return;
+  }
+  if (a === 'ghpull') {
+    if (!ghOn()) { toast('Set up GitHub backup first'); return; }
+    setSync('Restoring…');
+    ghGet(ghCfg()).then((r) => { if (!r) { setSync('No backup file in the repo yet.'); return; } const n = mergeIn(r.data); setSync('Restored. ' + n + ' new days added.'); render(); })
+      .catch((err) => setSync('Restore failed: ' + err.message));
+    return;
+  }
+  if (a === 'ghclear') { const g = ghCfg(); delete g.token; localStorage.setItem(GHKEY, JSON.stringify(g)); setSync(''); render(); toast('Token removed from this phone'); return; }
+});
+document.addEventListener('change', (e) => {
+  const el = e.target, a = el.dataset && el.dataset.act, k = el.dataset && el.dataset.k; if (!a) return;
+  if (a === 'screen') {
+    const o = kd(curDate, k, true), hEl = document.getElementById('sh-' + k), mEl = document.getElementById('sm-' + k);
+    const hv = hEl.value.trim(), mv = mEl.value.trim();
+    o.screen = hv === '' && mv === '' ? null : Math.max(0, Math.round((Number(hv) || 0) * 60 + (Number(mv) || 0)));
+    save(); const c = document.getElementById('chip-' + k); if (c) c.innerHTML = budgetChip(k, curDate); return;
+  }
+  if (a === 'short') {
+    const o = kd(curDate, k, true), raw = el.value.trim();
+    o[a] = raw === '' ? null : Math.max(0, Math.round(Number(raw)));
+    save(); const c = document.getElementById('chip-' + k); if (c) c.innerHTML = budgetChip(k, curDate); return;
+  }
+  if (a === 'win') { const o = kd(curDate, k, true); o.win = el.value.trim(); save(); return; }
+  if (a === 'tbudget' || a === 'tshort') {
+    const t = D.targets[k] = D.targets[k] || {}, raw = el.value.trim();
+    if (a === 'tbudget') t.budget = raw === '' ? null : Math.round(Number(raw) * 60); else t.short = raw === '' ? null : Math.round(Number(raw));
+    save(); toast('Target saved'); return;
+  }
+  if (a === 'kidname') { const kid = kids().find((x) => x.id === k); if (kid && el.value.trim()) { kid.name = el.value.trim(); save(); render(); } return; }
+  if (a === 'setting') {
+    if (k === 'start' && el.value && pd(el.value).getDay() !== 1) { toast('Pick a Monday'); el.value = D.settings.start; return; }
+    D.settings[k] = k === 'weekendExtra' ? (Number(el.value) || 0) : el.value.trim(); save(); render(); return;
+  }
+  if (a === 'restorefile') {
+    const f = el.files && el.files[0]; if (!f) return;
+    f.text().then((txt) => { const n = mergeIn(JSON.parse(txt)); render(); toast('Restored. ' + n + ' new days added.'); })
+      .catch((err) => toast(err.message || 'Could not read that file'));
+  }
+});
+let rvTimer = null;
+document.addEventListener('input', (e) => {
+  const el = e.target; if (!el.dataset || el.dataset.act !== 'rv') return;
+  const n = revWeek || defaultReviewWeek(), r = D.reviews[n] = D.reviews[n] || {};
+  r[el.dataset.k] = el.value; r.at = new Date().toISOString();
+  clearTimeout(rvTimer); rvTimer = setTimeout(() => { save(); const s = document.getElementById('rvsaved'); if (s) s.textContent = 'Saved'; }, 600);
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && localStorage.getItem(DIRTY) && ghOn()) { clearTimeout(syncTimer); ghPush(); }
+  if (document.visibilityState === 'visible' && view === 'today' && followToday && curDate !== todayStr()) { curDate = todayStr(); render(); }
+});
+
+/* ---------- Start ---------- */
+render();
+if (localStorage.getItem(DIRTY) && ghOn()) setTimeout(ghPush, 1500);
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
