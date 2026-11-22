@@ -112,7 +112,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v2';
+const BUILD = 'v3';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -121,8 +121,8 @@ const DAY = 864e5;
 /* ---------- Plan content (no names or personal details: this file is public) ---------- */
 const RULES = [
   { id: 'meals', label: 'No screens at meals' },
-  { id: 'charge', label: 'Devices charged in the living room overnight' },
-  { id: 'bed', label: 'No screens in the hour before bed' }
+  { id: 'charge', label: 'Devices on the living-room charger at bedtime' },
+  { id: 'first', label: 'Work first: daily pack attempted before any screens' }
 ];
 
 const WEEKS = [
@@ -181,7 +181,7 @@ const WEEKS = [
     items: [
       { id: 'w6-compare', t: 'Compare every number with the Week 1 baseline (Review tab)', when: 'This week' },
       { id: 'w6-term', t: 'Agree school-term rules with the kids before term starts', when: 'This week' },
-      { id: 'w6-keep', t: 'Decide what stays: budget, short-video cap, the 3 house rules', when: 'This week' },
+      { id: 'w6-keep', t: 'Decide what stays: budget, short-video cap, the 3 house rules. Consider adding no screens in the hour before bed for the term', when: 'This week' },
       { id: 'w6-celebrate', t: 'Celebrate together with a Yes-list reward', when: 'Weekend' },
       { id: 'w6-review', t: 'Sunday review', when: 'Sunday' }
     ] }
@@ -462,7 +462,7 @@ function vToday() {
   RULES.forEach((r) => {
     h += '<div class="row"><div class="lbl">' + esc(r.label) + '</div>' + seg('rule', r.id, [[true, 'Held', 'good'], [false, 'Slipped', 'bad']], x.rules[r.id]) + '</div>';
   });
-  h += '<div class="row"><div class="lbl">We adults kept them too</div>' + seg('rule', 'adults', [[true, 'Held', 'good'], [false, 'Slipped', 'bad']], x.rules.adults) + '</div>';
+  h += '<div class="row"><div class="lbl">We adults kept ours too<div class="when">Meals, charger, phone away until after breakfast</div></div>' + seg('rule', 'adults', [[true, 'Held', 'good'], [false, 'Slipped', 'bad']], x.rules.adults) + '</div>';
   const cu = commitFor('us', s);
   if (cu) h += '<div class="row"><div class="lbl">Our commitment<div class="when">' + esc(cu.t) + '</div></div>' + seg('rule', 'us', [[true, 'Kept', 'good'], [false, 'Missed', 'bad']], x.rules.us) + '</div>';
   h += '</div>';
