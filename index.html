@@ -112,7 +112,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v3';
+const BUILD = 'v4';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -127,18 +127,18 @@ const RULES = [
 
 const WEEKS = [
   { n: 1, title: 'Measure and agree', budget: null, short: null,
-    goal: 'Set up the controls, agree the three house rules, and get a baseline. No budget cuts this week.',
-    success: ['House rules held on at least 5 of 7 days', 'A baseline number for each child', 'Holiday activities booked for weeks 2 to 4', 'We kept the meal rule too'],
+    goal: 'Setup day first, then the house rules run and you measure. No budget cuts this week.',
+    success: ['House rules held on most days (5 of 7, or 4 of 5 when the rules start midweek)', 'A baseline number for each child', 'Holiday activities booked for weeks 2 to 4', 'We kept the meal rule too'],
     items: [
-      { id: 'w1-controls', t: 'Set up Screen Time / Family Link on every device the kids use', when: 'Weekend' },
-      { id: 'w1-roblox', t: 'Link a parent account to the Roblox account, with daily and spending limits', when: 'Weekend' },
-      { id: 'w1-tiktok', t: 'Check the age on the TikTok account (the platform rule is 13+)', when: 'Weekend' },
-      { id: 'w1-meeting', t: 'Hold the 30-minute family meeting: why, the 3 house rules, 5 Yes-list ideas from each child', when: 'Weekend' },
-      { id: 'w1-charger', t: 'Set up the charging spot in the living room', when: 'Weekend' },
-      { id: 'w1-yes', t: 'Put the Yes list on the fridge', when: 'Monday' },
-      { id: 'w1-rhythm', t: 'Start the morning rhythm: daily pack and some exercise before any screens', when: 'Monday' },
-      { id: 'w1-book', t: 'Book 1 or 2 holiday activities per child for weeks 2 to 4', when: 'By Wednesday' },
-      { id: 'w1-reminders', t: 'Add the reminders to your calendar (More tab)', when: 'Monday' },
+      { id: 'w1-controls', t: 'Set up Screen Time / Family Link on every device the kids use', when: 'Setup day' },
+      { id: 'w1-roblox', t: 'Link a parent account to the Roblox account, with daily and spending limits', when: 'Setup day' },
+      { id: 'w1-tiktok', t: 'Check the age on the TikTok account (the platform rule is 13+)', when: 'Setup day' },
+      { id: 'w1-meeting', t: 'Hold the 30-minute family meeting: why, the 3 house rules, 5 Yes-list ideas from each child', when: 'Setup day' },
+      { id: 'w1-charger', t: 'Set up the charging spot in the living room', when: 'Setup day' },
+      { id: 'w1-yes', t: 'Put the Yes list on the fridge', when: 'First day of the rules' },
+      { id: 'w1-rhythm', t: 'Start the morning rhythm: daily pack and some exercise before any screens', when: 'First day of the rules' },
+      { id: 'w1-book', t: 'Book 1 or 2 holiday activities per child for weeks 2 to 4', when: 'This week' },
+      { id: 'w1-reminders', t: 'Add the reminders to your calendar (More tab)', when: 'Setup day' },
       { id: 'w1-review', t: 'Sunday review with your wife (Review tab)', when: 'Sunday' }
     ] },
   { n: 2, title: 'Start the budget', budget: 300, short: 60,
@@ -252,7 +252,7 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
 
 /* ---------- State ---------- */
 function blank() {
-  return { v: 1, settings: { kids: [{ id: 'a', name: 'Son' }, { id: 'b', name: 'Daughter' }], partner: '', start: '2026-11-23', weekendExtra: 60 },
+  return { v: 1, settings: { kids: [{ id: 'a', name: 'Son' }, { id: 'b', name: 'Daughter' }], partner: '', start: '2026-11-23', go: '2026-11-25', weekendExtra: 60 },
     days: {}, checks: {}, custom: {}, targets: {}, reviews: {}, commits: {}, lastBackup: null, savedAt: null };
 }
 function fill(d, b) {
@@ -303,6 +303,7 @@ function commitCount(id, dates) {
   return { kept, marked };
 }
 function lastDays(n) { const t = todayStr(); return Array.from({ length: n }, (_, i) => addDays(t, -i)); }
+function goDate() { const g = D.settings.go; return g && g > D.settings.start ? g : D.settings.start; }
 function partner() { return D.settings.partner ? D.settings.partner : 'your wife'; }
 
 /* ---------- Weeks and targets ---------- */
@@ -315,7 +316,7 @@ function tgt(n) {
   return { budget: isNum(o.budget) ? o.budget : w.budget, short: isNum(o.short) ? o.short : w.short };
 }
 function baseline(id) {
-  const v = weekDates(1).map((s) => kd(s, id)).filter((k) => k && isNum(k.screen)).map((k) => k.screen);
+  const v = weekDates(1).filter((s) => s >= goDate()).map((s) => kd(s, id)).filter((k) => k && isNum(k.screen)).map((k) => k.screen);
   return v.length ? Math.round(avg(v)) : null;
 }
 function budgetFor(id, s) {
@@ -328,8 +329,8 @@ function itemsFor(n) { return wk(n).items.concat((D.custom[n] || []).map((c) => 
 
 /* ---------- Week stats, tripwires, recommendation ---------- */
 function weekStats(n) {
-  const t = todayStr(), dates = weekDates(n).filter((s) => s <= t);
-  const st = { n, dates, remaining: 7 - dates.length, logged: 0, rulesHeld: 0, rulesSlip: 0, adultHeld: 0, adultSlip: 0, kids: {} };
+  const t = todayStr(), all = weekDates(n).filter((s) => s >= goDate()), dates = all.filter((s) => s <= t);
+  const st = { n, dates, days: all.length, remaining: all.length - dates.length, logged: 0, rulesHeld: 0, rulesSlip: 0, adultHeld: 0, adultSlip: 0, kids: {} };
   kids().forEach((k) => { st.kids[k.id] = { screen: [], short: [], over: 0, overShort: 0, packDone: 0, packLogged: 0, melt: 0, meltLogged: 0, wins: [] }; });
   kids().forEach((k) => { Object.assign(st.kids[k.id], commitCount(k.id, dates)); });
   st.us = commitCount('us', dates);
@@ -355,10 +356,11 @@ function weekStats(n) {
 function tripwires(n) {
   const s = weekStats(n), p = n > 1 ? weekStats(n - 1) : null, p2 = n > 2 ? weekStats(n - 2) : null, list = [];
   const add = (id, fired, title, action, status) => list.push({ id, fired: !!fired, title, action, status });
-  add('logging', s.logged + s.remaining < 4, 'Fewer than 4 days logged',
+  const needRules = Math.ceil(5 * s.days / 7), needLog = Math.ceil(4 * s.days / 7);
+  add('logging', s.days > 0 && s.logged + s.remaining < needLog, 'Fewer than ' + needLog + ' days logged',
     'The log is too heavy. Next week, log the house rules only and skip the rest.', s.logged + ' logged so far');
-  add('rules', s.logged > 0 && s.rulesHeld + s.remaining < 5, 'House rules held on fewer than 5 of 7 days',
-    'Do not cut the budget next week. Fix the routine first: same time, same place, devices on the charger.', s.rulesHeld + ' of 7 held');
+  add('rules', s.logged > 0 && s.rulesHeld + s.remaining < needRules, 'House rules held on fewer than ' + needRules + ' of ' + s.days + ' days',
+    'Do not cut the budget next week. Fix the routine first: same time, same place, devices on the charger.', s.rulesHeld + ' of ' + s.days + ' held');
   add('adults', s.adultSlip >= 2, 'We broke the house rules on 2 or more days',
     'Reset between the two of you before the next talk with the kids. The rules apply to everyone.', s.adultSlip + ' slips');
   kids().forEach((k) => {
@@ -405,7 +407,7 @@ const TABS = [['today', 'Today'], ['plan', 'Plan'], ['review', 'Review'], ['scri
 
 function render() {
   const n = weekNo(todayStr());
-  $('#wk').textContent = n < 1 ? 'Week 1 starts ' + nice(D.settings.start) : 'Week ' + n + ' · ' + (n > WEEKS.length ? 'Maintain' : wk(n).title);
+  $('#wk').textContent = todayStr() < goDate() ? 'House rules start ' + nice(goDate()) : 'Week ' + n + ' · ' + (n > WEEKS.length ? 'Maintain' : wk(n).title);
   $('#tabbar').innerHTML = TABS.map(([v, l]) => '<button class="' + (view === v ? 'on' : '') + '" data-act="tab" data-v="' + v + '">' + ICON[v] + l + '</button>').join('');
   const f = { today: vToday, plan: vPlan, review: vReview, scripts: vScripts, more: vMore }[view];
   $('#main').innerHTML = f();
@@ -430,8 +432,9 @@ function vToday() {
   let h = '<div class="datebar"><button class="ib" data-act="day" data-v="-1" aria-label="Previous day">‹</button><div><b>' + (s === t ? 'Today' : nice(s)) + '</b><span class="mute small">' + (s === t ? nice(s) : (diffDays(s, t) === 1 ? 'Yesterday' : '')) + '</span></div><button class="ib" data-act="day" data-v="1" aria-label="Next day"' + (s >= t ? ' disabled' : '') + '>›</button></div>';
 
   // Week banner
-  if (n < 1) {
-    h += '<div class="card"><div class="kicker">Before Week 1</div><div class="h2">Week 1 starts ' + nice(D.settings.start) + '</div><div class="mute">Use the checklist below. The house rules start on Monday, for everyone.</div></div>';
+  const pre = s < goDate();
+  if (pre) {
+    h += '<div class="card"><div class="kicker">Before the start</div><div class="h2">House rules start ' + nice(goDate()) + '</div><div class="mute">Setup day is ' + nice(addDays(goDate(), -1)) + ', with the kids, using the checklist below. From ' + nice(goDate()) + ' the rules run for everyone and you log each evening.</div></div>';
   } else {
     const tg = tgt(n), w = wk(n);
     h += '<div class="card"><div class="kicker">Week ' + n + (n > WEEKS.length ? ' · after the 6-week plan' : '') + '</div><div class="h2">' + esc(n > WEEKS.length ? 'Maintain' : w.title) + '</div><div class="mute small">' +
@@ -443,11 +446,11 @@ function vToday() {
   const cn = Math.max(1, Math.min(n, WEEKS.length));
   if (n <= WEEKS.length) {
     const its = itemsFor(cn), open = its.filter((i) => !D.checks[i.id]), done = its.length - open.length;
-    cl = '<div class="card"><div class="ch">' + (n < 1 ? 'Setup checklist' : 'Week ' + cn + ' checklist') + ' <span class="chip">' + done + ' of ' + its.length + '</span></div>' +
+    cl = '<div class="card"><div class="ch">' + (pre ? 'Setup checklist' : 'Week ' + cn + ' checklist') + ' <span class="chip">' + done + ' of ' + its.length + '</span></div>' +
       (open.length ? open.map((i) => checkRow(i, null)).join('') : '<div class="mute">All done this week.</div>') +
       (done ? '<div class="when" style="padding-top:8px">' + done + ' done. See the Plan tab.</div>' : '') + '</div>';
   }
-  if (n < 1) h += cl;
+  if (pre) h += cl;
 
   // Backup nudge
   const lb = D.lastBackup ? diffDays(D.lastBackup.at.slice(0, 10), t) : null;
@@ -479,7 +482,7 @@ function vToday() {
       '<div style="padding-top:8px"><input class="txt" type="text" maxlength="200" placeholder="One win today (optional)" data-act="win" data-k="' + k.id + '" value="' + esc(v.win || '') + '"></div></div>';
   });
 
-  if (n >= 1) h += cl;
+  if (!pre) h += cl;
   h += '<div class="build">Saves on this phone as you tap. <span id="syncline">' + syncLine() + '</span></div>';
   return h;
 }
@@ -530,7 +533,7 @@ function vReview() {
 
   // Household numbers
   h += '<div class="card"><div class="ch">The household</div><div class="grid2">' +
-    stat(s.logged + '/7', 'days logged') + stat(s.rulesHeld + '/7', 'all 3 rules held') +
+    stat(s.logged + '/' + s.days, 'days logged') + stat(s.rulesHeld + '/' + s.days, 'all 3 rules held') +
     stat(s.adultSlip ? s.adultSlip + (s.adultSlip === 1 ? ' slip' : ' slips') : (s.adultHeld ? 'Kept' : '–'), 'adults kept the rules') +
     stat(prev ? (s.rulesHeld - prev.rulesHeld >= 0 ? '+' : '') + (s.rulesHeld - prev.rulesHeld) : '–', 'rule days vs last week') + '</div></div>';
 
@@ -631,7 +634,7 @@ function rulesCal() {
     h += '<span>W' + n + '</span>';
     weekDates(n).forEach((s) => {
       const x = day(s); let c = '';
-      if (s > t) c = 'fut';
+      if (s > t || s < goDate()) c = 'fut';
       else if (x && RULES.every((r) => x.rules[r.id] === true)) c = 'held';
       else if (x && RULES.some((r) => x.rules[r.id] === false)) c = 'slip';
       h += '<div class="c ' + c + '" title="' + nice(s) + '"></div>';
@@ -653,6 +656,7 @@ function vMore() {
     kids().map((k, i) => '<label class="field"><span>Child ' + (i + 1) + ' name (stays on this phone)</span><input type="text" maxlength="30" data-act="kidname" data-k="' + k.id + '" value="' + esc(k.name) + '"></label>').join('') +
     '<label class="field"><span>Partner name, for the prompts</span><input type="text" maxlength="30" data-act="setting" data-k="partner" value="' + esc(st.partner) + '" placeholder="your wife"></label>' +
     '<label class="field"><span>Week 1 starts (a Monday)</span><input type="date" data-act="setting" data-k="start" value="' + esc(st.start) + '"></label>' +
+    '<label class="field"><span>House rules and logging start (day after setup)</span><input type="date" data-act="setting" data-k="go" value="' + esc(goDate()) + '"></label>' +
     '<label class="field"><span>Extra on weekends (minutes)</span><input type="number" inputmode="numeric" step="15" min="0" max="240" data-act="setting" data-k="weekendExtra" value="' + esc(st.weekendExtra) + '"></label></div>' +
 
     '<div class="card"><div class="ch">Reminders</div><div class="small">Adds three repeating events to your calendar: a nightly 60-second log at 9:30pm, the Sunday review at 8pm, and a monthly retell recording on the first Saturday.</div><div class="actions"><button class="btn" data-act="ics">Add to calendar</button></div></div>' +
@@ -756,7 +760,7 @@ function mergeIn(inc, quiet) {
 /* ---------- Calendar reminders (.ics) ---------- */
 function icsText() {
   const now = new Date(), stamp = now.getUTCFullYear() + pad(now.getUTCMonth() + 1) + pad(now.getUTCDate()) + 'T' + pad(now.getUTCHours()) + pad(now.getUTCMinutes()) + '00Z';
-  const t = todayStr(), from = D.settings.start > t ? D.settings.start : t;
+  const t = todayStr(), from = goDate() > t ? goDate() : t;
   const compact = (s) => s.replace(/-/g, '');
   let sun = from; while (pd(sun).getDay() !== 0) sun = addDays(sun, 1);
   const f = pd(from); let sat = ds(new Date(f.getFullYear(), f.getMonth() + 1, 1)); while (pd(sat).getDay() !== 6) sat = addDays(sat, 1);
