@@ -112,7 +112,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v1';
+const BUILD = 'v2';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -148,6 +148,7 @@ const WEEKS = [
       { id: 'w2-limits', t: 'Set the daily limits in Screen Time / Family Link and Roblox', when: 'Monday' },
       { id: 'w2-short', t: 'Set the short-video cap, or move short videos to the shared TV or tablet only', when: 'Monday' },
       { id: 'w2-plan', t: 'Let each child plan how to spend their budget', when: 'Monday' },
+      { id: 'w2-commit', t: 'Each child picks one commitment from the ideas, and we pick one too (Plan tab)', when: 'Once the house rules hold' },
       { id: 'w2-own', t: 'Your daughter plans her own week from December', when: 'Monday' },
       { id: 'w2-job', t: 'Give your daughter one real household job, and let natural consequences happen', when: 'This week' },
       { id: 'w2-review', t: 'Sunday review', when: 'Sunday' }
@@ -211,10 +212,19 @@ const SCRIPTS = [
   { t: 'When we slip as parents', when: 'One of us breaks a house rule',
     say: ['Say it out loud: "I broke the meal rule. That is on me. Phone is going on the charger."', 'Kids copy what we do more than what we say.'],
     avoid: ['Pretending it did not happen', 'Arguing about it in front of the kids'] },
+  { t: 'Instead of "you are not serious"', when: 'A commitment was not kept',
+    say: ['Describe it, do not label it: "You said you would start the pack by 10. It did not happen."', 'Ask before telling: "What got in the way?"', 'Plan together: "What would make it easier tomorrow?" If it keeps slipping, make the commitment smaller.', 'When it is kept: "You said you would, and you did. That is what keeping your word looks like."'],
+    avoid: ['Labels: lazy, unserious, "you never"', 'Comparing with the other child', 'Punishing an honest "I did not do it"'] },
   { t: 'TikTok and the 13+ rule', when: 'Checking her account age',
     say: ['"TikTok’s own rule is 13 and up. What do you like most about it?"', 'Find another outlet for what she likes: silly videos and dance or singing clips on the family tablet, shared with family only.'],
     avoid: ['A surprise account deletion with no talk first', 'Making it about her friends'] }
 ];
+
+const COMMIT_IDEAS = {
+  a: ['Start my daily pack by 10am, before any screens', 'When a puzzle gets hard, try the hint box once before stopping', 'Tablet on the charger when the timer goes, the first time I am asked', 'Set the table for dinner every day', 'Water the garden plants every day'],
+  b: ['Plan my week on Sunday night and tick it off each day', 'Do my household job without being reminded', 'Practise singing or dance for 15 minutes (aim: 5 days a week)', 'Phone on the charger by 9:30pm', 'Finish the daily pack before lunch'],
+  us: ['Phones away at every meal, both of us', 'One specific effort praise per child per day', 'Follow through on the first ask, calmly, with no repeated warnings']
+};
 
 /* ---------- Helpers ---------- */
 const $ = (s) => document.querySelector(s);
@@ -243,7 +253,7 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
 /* ---------- State ---------- */
 function blank() {
   return { v: 1, settings: { kids: [{ id: 'a', name: 'Son' }, { id: 'b', name: 'Daughter' }], partner: '', start: '2026-11-23', weekendExtra: 60 },
-    days: {}, checks: {}, custom: {}, targets: {}, reviews: {}, lastBackup: null, savedAt: null };
+    days: {}, checks: {}, custom: {}, targets: {}, reviews: {}, commits: {}, lastBackup: null, savedAt: null };
 }
 function fill(d, b) {
   for (const k in b) {
@@ -275,6 +285,24 @@ function logged(x) {
   return Object.values(x.kids || {}).some((k) => k && Object.values(k).some((v) => v !== null && v !== undefined && v !== ''));
 }
 function kids() { return D.settings.kids; }
+
+/* ---------- Commitments: history per person, so past weeks keep the text that applied ---------- */
+function commitFor(id, s) {
+  const list = (D.commits[id] || []).filter((c) => c.from <= s).sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0));
+  const c = list[list.length - 1];
+  return c && c.t ? c : null;
+}
+function setCommit(id, t) {
+  const list = D.commits[id] = D.commits[id] || [], today = todayStr(), last = list[list.length - 1];
+  if (last && last.from === today) last.t = t; else list.push({ t, from: today });
+}
+function commitMark(x, id) { if (!x) return undefined; return id === 'us' ? x.rules.us : (x.kids[id] || {}).commit; }
+function commitCount(id, dates) {
+  let kept = 0, marked = 0;
+  dates.forEach((s) => { if (!commitFor(id, s)) return; const v = commitMark(day(s), id); if (v === true || v === false) { marked++; if (v) kept++; } });
+  return { kept, marked };
+}
+function lastDays(n) { const t = todayStr(); return Array.from({ length: n }, (_, i) => addDays(t, -i)); }
 function partner() { return D.settings.partner ? D.settings.partner : 'your wife'; }
 
 /* ---------- Weeks and targets ---------- */
@@ -303,6 +331,8 @@ function weekStats(n) {
   const t = todayStr(), dates = weekDates(n).filter((s) => s <= t);
   const st = { n, dates, remaining: 7 - dates.length, logged: 0, rulesHeld: 0, rulesSlip: 0, adultHeld: 0, adultSlip: 0, kids: {} };
   kids().forEach((k) => { st.kids[k.id] = { screen: [], short: [], over: 0, overShort: 0, packDone: 0, packLogged: 0, melt: 0, meltLogged: 0, wins: [] }; });
+  kids().forEach((k) => { Object.assign(st.kids[k.id], commitCount(k.id, dates)); });
+  st.us = commitCount('us', dates);
   dates.forEach((s) => {
     const x = day(s); if (!logged(x)) return;
     st.logged++;
@@ -343,7 +373,11 @@ function tripwires(n) {
     const rising = p && p2 && o.melt > pm && pm > p2m;
     add('melt-' + k.id, rising || o.melt >= 5, nm + ': meltdowns rising 2 weeks running, or 5+ in a week',
       'Note what came right before each one (hunger, tiredness, a screen ending). If it keeps rising once school starts, talk to the form teacher or school counsellor.', o.melt + ' this week');
+    if (o.marked) add('commit-' + k.id, o.marked >= 4 && o.kept <= 2, nm + ': commitment kept on 2 or fewer days',
+      'Make it smaller, together with ' + nm + ', at the check-in. Not a punishment: a commitment that is too big teaches failing, not follow-through.', o.kept + ' of ' + o.marked + ' kept');
   });
+  if (s.us.marked) add('commit-us', s.us.marked >= 4 && s.us.kept <= 2, 'Our own commitment kept on 2 or fewer days',
+    'Pick a smaller one, and say it out loud to the kids when you miss. They copy what we do.', s.us.kept + ' of ' + s.us.marked + ' kept');
   return { stats: s, list };
 }
 function recommendation(n) {
@@ -428,7 +462,10 @@ function vToday() {
   RULES.forEach((r) => {
     h += '<div class="row"><div class="lbl">' + esc(r.label) + '</div>' + seg('rule', r.id, [[true, 'Held', 'good'], [false, 'Slipped', 'bad']], x.rules[r.id]) + '</div>';
   });
-  h += '<div class="row"><div class="lbl">We adults kept them too</div>' + seg('rule', 'adults', [[true, 'Held', 'good'], [false, 'Slipped', 'bad']], x.rules.adults) + '</div></div>';
+  h += '<div class="row"><div class="lbl">We adults kept them too</div>' + seg('rule', 'adults', [[true, 'Held', 'good'], [false, 'Slipped', 'bad']], x.rules.adults) + '</div>';
+  const cu = commitFor('us', s);
+  if (cu) h += '<div class="row"><div class="lbl">Our commitment<div class="when">' + esc(cu.t) + '</div></div>' + seg('rule', 'us', [[true, 'Kept', 'good'], [false, 'Missed', 'bad']], x.rules.us) + '</div>';
+  h += '</div>';
 
   // Per child
   kids().forEach((k) => {
@@ -438,6 +475,7 @@ function vToday() {
       '<div class="row"><div class="lbl">Short video<div class="when">Shorts, TikTok</div></div><div class="inp"><input type="number" inputmode="numeric" step="5" min="0" max="900" data-act="short" data-k="' + k.id + '" value="' + (isNum(v.short) ? v.short : '') + '" placeholder="0"><span class="mute small">min</span></div></div>' +
       '<div class="row"><div class="lbl">Daily pack</div>' + seg('pack', k.id, [['done', 'Done', 'good'], ['part', 'Part'], ['skip', 'Skipped', 'bad']], v.pack) + '</div>' +
       '<div class="row"><div class="lbl">Meltdowns</div>' + seg('melt', k.id, [[0, '0', 'good'], [1, '1'], [2, '2+', 'bad']], v.melt) + '</div>' +
+      (commitFor(k.id, s) ? '<div class="row"><div class="lbl">Commitment<div class="when">' + esc(commitFor(k.id, s).t) + '</div></div>' + seg('commit', k.id, [[true, 'Kept', 'good'], [false, 'Missed', 'bad']], v.commit) + '</div>' : '') +
       '<div style="padding-top:8px"><input class="txt" type="text" maxlength="200" placeholder="One win today (optional)" data-act="win" data-k="' + k.id + '" value="' + esc(v.win || '') + '"></div></div>';
   });
 
@@ -449,6 +487,7 @@ function vToday() {
 function vPlan() {
   const cur = weekNo(todayStr());
   let h = '<div class="note info">Six-week taper. Cut short video hardest, protect some game time, add Yes-list activities as screens come down. Targets are the same for both children.</div>';
+  h += vCommits();
   WEEKS.forEach((w) => {
     const dates = weekDates(w.n), its = itemsFor(w.n), done = its.filter((i) => D.checks[i.id]).length, t = tgt(w.n);
     const open = w.n === Math.max(1, Math.min(cur, WEEKS.length));
@@ -464,6 +503,20 @@ function vPlan() {
   });
   h += '<div class="card"><div class="ch">After week 6</div><div class="small">Keep the Sunday review going, weekly at first, then every other week once the numbers are steady. Once a month, record a 2-minute retell from each child in each language (the calendar reminder covers it).</div></div>';
   return h;
+}
+
+function vCommits() {
+  const people = kids().map((k) => ({ id: k.id, name: k.name })).concat([{ id: 'us', name: 'Us (both parents)' }]);
+  const any = people.some((p) => commitFor(p.id, todayStr()));
+  let h = '<details class="card"' + (any ? '' : ' open') + '><summary><div class="ch"><span>Commitments</span><span class="chip">' + people.filter((p) => commitFor(p.id, todayStr())).length + ' set</span></div><div class="when">One each, chosen by them. Kept = 5 of 7 days.</div></summary>' +
+    '<ul class="say small"><li>Show the ideas and let them pick, or write their own. You agree to it, you do not assign it.</li><li>About effort, not results, and small enough to keep on 5 of 7 days.</li><li>Keep it 2 weeks before changing it. Missed two weeks running: make it smaller together.</li><li>Kept: they pick something from the Yes list, each child on their own.</li></ul>';
+  people.forEach((p) => {
+    const c = commitFor(p.id, todayStr()), r = commitCount(p.id, c ? lastDays(7).filter((d) => d >= c.from) : []), ideas = COMMIT_IDEAS[p.id] || [];
+    h += '<div class="row" style="display:block"><div class="ch" style="margin:6px 0 4px"><span>' + esc(p.name) + '</span>' + (c ? '<span class="chip ' + (r.marked ? (r.kept >= 5 ? 'good' : '') : '') + '">' + (r.marked ? r.kept + ' of last ' + r.marked + ' kept' : 'since ' + shortD(c.from)) + '</span>' : '') + '</div>' +
+      '<div class="addrow" style="margin-top:0"><input type="text" maxlength="140" id="cin-' + p.id + '" placeholder="I will..." value="' + esc(c ? c.t : '') + '"><button class="btn sm" data-act="cset" data-k="' + p.id + '">Set</button>' + (c ? '<button class="btn sm ghost" data-act="cclear" data-k="' + p.id + '">End</button>' : '') + '</div>' +
+      (ideas.length ? '<div class="when" style="margin-top:6px">Ideas (tap to use):</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">' + ideas.map((t, i) => '<button class="chip" style="border:0;text-align:left;white-space:normal;padding:5px 9px" data-act="cidea" data-k="' + p.id + '" data-v="' + i + '">' + esc(t) + '</button>').join('') + '</div>' : '') + '</div>';
+  });
+  return h + '</details>';
 }
 
 function defaultReviewWeek() { const n = weekNo(todayStr()); return Math.max(1, Math.min(n, WEEKS.length + 6)); }
@@ -491,7 +544,9 @@ function vReview() {
       stat(hm(sh), 'avg short video' + (tgt(n).short != null ? ' (cap ' + hm(tgt(n).short) + ')' : '')) +
       stat(o.over + ' days', 'over budget') +
       stat(o.packDone + '/' + o.packLogged, 'pack done / logged') +
-      stat(o.melt + (pm != null ? ' <span class="small mute">(was ' + pm + ')</span>' : ''), 'meltdowns') + '</div>' +
+      stat(o.melt + (pm != null ? ' <span class="small mute">(was ' + pm + ')</span>' : ''), 'meltdowns') +
+      (o.marked ? stat(o.kept + '/' + o.marked + (o.kept >= 5 ? ' <span class="small" style="color:var(--good)">kept</span>' : ''), 'commitment kept') : '') + '</div>' +
+      (o.kept >= 5 ? '<div class="note good small" style="margin:8px 0 0">Commitment kept this week. Let ' + esc(k.name) + ' pick something from the Yes list, and name what they did.</div>' : '') +
       (o.wins.length ? '<div class="q">Wins</div><ul class="say small">' + o.wins.map((w) => '<li><span class="mute">' + DOW[pd(w.s).getDay()] + '</span> ' + esc(w.t) + '</li>').join('') + '</ul>' : '') + '</div>';
   });
 
@@ -503,6 +558,20 @@ function vReview() {
     (clear.length ? '<details><summary class="small mute" style="padding:10px 0;border-top:1px solid var(--line);cursor:pointer">' + clear.length + ' not fired · show</summary>' + clear.map(twRow).join('') + '</details>' : '') + '</div>';
 
   h += '<div class="note ' + rec.tone + '"><b>Suggested for next week.</b> ' + esc(rec.text) + '</div>';
+
+  // Kid check-ins (one at a time, never side by side)
+  const withC = kids().filter((k) => dates.some((d) => commitFor(k.id, d)));
+  if (withC.length) {
+    h += '<div class="card"><div class="ch">Check-in with each child</div><div class="when">5 minutes each, one at a time. Honesty is never punished.</div>';
+    withC.forEach((k) => {
+      const c = commitFor(k.id, dates[6] <= todayStr() ? dates[6] : todayStr()) || commitFor(k.id, dates[0]), rk = (r.kids || {})[k.id] || {};
+      h += '<div class="row" style="display:block"><div class="q" style="margin-top:4px">' + esc(k.name) + '</div>' +
+        '<div class="small"><span class="mute">You said you would:</span> ' + esc(c ? c.t : '') + '</div>' +
+        '<div class="q">What happened? (their words)</div><textarea data-act="rvk" data-kid="' + k.id + '" data-k="happened">' + esc(rk.happened || '') + '</textarea>' +
+        '<div class="q">Keep it, change it, or make it smaller?</div><textarea data-act="rvk" data-kid="' + k.id + '" data-k="next">' + esc(rk.next || '') + '</textarea></div>';
+    });
+    h += '</div>';
+  }
 
   // Conversation
   h += '<div class="card"><div class="ch">Sunday talk with ' + esc(partner()) + '</div><div class="when">10 minutes. Numbers first, then these.</div>' +
@@ -671,6 +740,11 @@ function mergeIn(inc, quiet) {
   let added = 0;
   for (const s in inc.days) { if (!D.days[s]) added++; D.days[s] = deepFill(D.days[s], inc.days[s]); }
   ['checks', 'targets', 'reviews'].forEach((k) => { D[k] = deepFill(D[k] || {}, inc[k] || {}); });
+  D.commits = D.commits || {};
+  for (const id in (inc.commits || {})) {
+    const mine = D.commits[id] = D.commits[id] || [];
+    (inc.commits[id] || []).forEach((c) => { if (!mine.some((m) => m.from === c.from)) mine.push(c); });
+  }
   for (const n in (inc.custom || {})) {
     const mine = D.custom[n] = D.custom[n] || [];
     (inc.custom[n] || []).forEach((c) => { if (!mine.some((m) => m.id === c.id)) mine.push(c); });
@@ -724,9 +798,12 @@ document.addEventListener('click', (e) => {
   if (a === 'rweek') { revWeek = Math.max(1, (revWeek || defaultReviewWeek()) + Number(v)); render(); return; }
   if (a === 'rule') { const x = day(curDate, true), pv = parseVal(v); x.rules[k] = x.rules[k] === pv ? null : pv; save(); render(); return; }
   if (a === 'allheld') { const x = day(curDate, true); RULES.forEach((r) => { x.rules[r.id] = true; }); x.rules.adults = true; save(); render(); toast('All held. Nice.'); return; }
-  if (a === 'pack' || a === 'melt') { const o = kd(curDate, k, true), pv = parseVal(v); o[a] = o[a] === pv ? null : pv; save(); render(); return; }
+  if (a === 'pack' || a === 'melt' || a === 'commit') { const o = kd(curDate, k, true), pv = parseVal(v); o[a] = o[a] === pv ? null : pv; save(); render(); return; }
   if (a === 'tick') { if (D.checks[k]) delete D.checks[k]; else D.checks[k] = todayStr(); save(); render(); return; }
   if (a === 'additem') { const inp = document.getElementById('add-' + k), t = inp && inp.value.trim(); if (!t) return; (D.custom[k] = D.custom[k] || []).push({ id: 'c' + Date.now(), t }); save(); render(); return; }
+  if (a === 'cidea') { const inp = document.getElementById('cin-' + k); if (inp) { inp.value = (COMMIT_IDEAS[k] || [])[Number(v)] || ''; inp.focus(); } return; }
+  if (a === 'cset') { const inp = document.getElementById('cin-' + k), t = inp && inp.value.trim(); if (!t) { toast('Write the commitment first'); return; } const c = commitFor(k, todayStr()); if (c && c.t === t) { toast('Already set'); return; } setCommit(k, t); save(); render(); toast('Commitment set from today'); return; }
+  if (a === 'cclear') { setCommit(k, ''); save(); render(); toast('Commitment ended'); return; }
   if (a === 'ics') { download(icsText(), 'family-coach-reminders.ics', 'text/calendar'); return; }
   if (a === 'savefile') { saveFile(); return; }
   if (a === 'ghsave') {
@@ -775,9 +852,11 @@ document.addEventListener('change', (e) => {
 });
 let rvTimer = null;
 document.addEventListener('input', (e) => {
-  const el = e.target; if (!el.dataset || el.dataset.act !== 'rv') return;
+  const el = e.target; if (!el.dataset || (el.dataset.act !== 'rv' && el.dataset.act !== 'rvk')) return;
   const n = revWeek || defaultReviewWeek(), r = D.reviews[n] = D.reviews[n] || {};
-  r[el.dataset.k] = el.value; r.at = new Date().toISOString();
+  if (el.dataset.act === 'rvk') { r.kids = r.kids || {}; const rk = r.kids[el.dataset.kid] = r.kids[el.dataset.kid] || {}; rk[el.dataset.k] = el.value; }
+  else r[el.dataset.k] = el.value;
+  r.at = new Date().toISOString();
   clearTimeout(rvTimer); rvTimer = setTimeout(() => { save(); const s = document.getElementById('rvsaved'); if (s) s.textContent = 'Saved'; }, 600);
 });
 document.addEventListener('visibilitychange', () => {

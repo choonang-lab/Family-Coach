@@ -22,7 +22,9 @@ HTML/CSS/JS (`index.html`) + `sw.js` + `manifest.json` + icons. No build step, n
    localStorage. Clear it afterwards.
 4. **Data shape is append-friendly:** `days[YYYY-MM-DD] = {rules:{meals,charge,bed,adults}, kids:{<id>:{screen(min), short(min), pack, melt, win}}}`;
    `checks[itemId] = date`; `custom[week] = [{id,t}]`; `targets[week] = {budget, short}` (minutes);
-   `reviews[week] = {worked, slipped, change, decision, at}`. Checklist item ids are progress keys:
+   `reviews[week] = {worked, slipped, change, decision, at, kids:{<id>:{happened, next}}}`.
+   `commits[<kidId>|'us'] = [{t, from}]` is a history (latest `from` <= date applies; `t:''` ends it);
+   the daily tick is `kids[id].commit` / `rules.us`. Checklist item ids are progress keys:
    never rename or reuse them.
 5. **Merge never drops data:** restore and GitHub sync use `mergeIn` (phone wins per field, missing
    fields filled). Keep it that way.
