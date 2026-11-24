@@ -100,6 +100,7 @@ ul.say li{margin:4px 0}
 .field input{width:100%}
 .build{font-size:12px;color:var(--mute);text-align:center;margin:16px 0}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+pre.code{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:13px/1.5 ui-monospace,Menlo,monospace;overflow-x:auto;white-space:pre;margin:6px 0 0}
 h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:18px 0 8px;font-weight:700}
 .q{font-weight:600;font-size:14px;margin:12px 0 4px}
 .addrow{display:flex;gap:8px;margin-top:8px}
@@ -112,7 +113,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v8';
+const BUILD = 'v9';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -152,6 +153,8 @@ const WEEKS = [
       { id: 'w2-phone1', t: 'Phone talk 1 (10 min): her phone is coming this month. Give her the budget and the model comparison to research. Same daily budget, different screen', when: 'Tuesday' },
       { id: 'w2-phone2', t: 'Phone talk 2 (15 min): she pitches her pick. Decide together and buy from a shop with a return window', when: 'Saturday' },
       { id: 'w2-own', t: 'Your daughter plans her own week from December', when: 'Monday' },
+      { id: 'w2-studio-setup', t: 'Set up Roblox Studio on the Mac: his own account, a mouse with a scroll wheel, games kept private, no Toolbox free models from strangers', when: 'Before the weekend' },
+      { id: 'w2-studio1', t: 'Roblox Studio session 1 (45 min, inside his budget): build something with Move, Scale, Rotate and Anchor, then walk around in it', when: 'Weekend' },
       { id: 'w2-job', t: 'Give your daughter one real household job, and let natural consequences happen', when: 'This week' },
       { id: 'w2-review', t: 'Sunday review', when: 'Sunday' }
     ] },
@@ -161,6 +164,7 @@ const WEEKS = [
       { id: 'w3-yes', t: 'Do one new Yes-list activity together', when: 'This week' },
       { id: 'w3-praise', t: 'Aim for 3 specific effort praises a day per child (Scripts tab)', when: 'Daily' },
       { id: 'w3-triplep', t: 'Look for a Triple P Level 2 seminar (Raising resilient children, 7 to 12 track)', when: 'This week' },
+      { id: 'w3-studio2', t: 'Roblox Studio session 2: his first obby. Jump platforms and a finish pad; test, adjust the gaps, test again', when: 'Weekend' },
       { id: 'w3-coop', t: 'Try a co-op split-clue puzzle on Saturday', when: 'Saturday' },
       { id: 'w3-phone3', t: 'Phone talk 3 (15 min): she rewrites her phone rules, part one: every day, safety and scams, group chats', when: 'Wednesday' },
       { id: 'w3-phone4', t: 'Phone talk 4 (30 min): finish the rules, set up the phone together (Screen Time, storage settings, Screen Coach), write the agreed-on date', when: 'Saturday' },
@@ -171,6 +175,7 @@ const WEEKS = [
     items: [
       { id: 'w4-handover', t: 'Hand over the phone at Level 1, if the house rules are holding (if not, push back a week). It shares her daily budget with her iPad', when: 'Monday' },
       { id: 'w4-reports', t: 'Compare the Screen Time / Family Link reports with your log', when: 'Midweek' },
+      { id: 'w4-studio3', t: 'Roblox Studio session 3: first script, the lava block (code in the Scripts tab). He types it', when: 'Weekend' },
       { id: 'w4-ask', t: 'Ask each child what is hardest about the budget, and change one thing with them', when: 'This week' },
       { id: 'w4-review', t: 'Sunday review', when: 'Sunday' }
     ] },
@@ -178,6 +183,7 @@ const WEEKS = [
     goal: 'Close to the guideline (under 2 hours of recreational screens). Plan ahead for the holiday days.',
     items: [
       { id: 'w5-xmas', t: 'Plan the Christmas days: what happens on screen-heavy family days, new phone included', when: 'Monday' },
+      { id: 'w5-studio4', t: 'Roblox Studio session 4: a playtester (his sister or a friend) plays his game while he watches', when: 'Weekend' },
       { id: 'w5-sec1', t: 'Register for the Transition to Sec 1 parent seminar (likely January)', when: 'This week' },
       { id: 'w5-review', t: 'Sunday review', when: 'Sunday' }
     ] },
@@ -229,6 +235,10 @@ const SCRIPTS = [
   { t: 'After a quarrel', when: 'Once both of you have calmed down',
     say: ['Go first: "I got frustrated just now. That was not fair. Can we try again?"', 'Keep it short. The repair matters more than winning the point.', 'Then solve the problem together, as in the meltdown card: their side first, then yours.'],
     avoid: ['Waiting for the child to apologise first', 'Re-opening the whole argument'] },
+  { t: 'Roblox Studio with him', when: 'The weekly 45-minute session on the Mac',
+    say: ['He has the mouse. You only give directions, even when it is slow.', 'Mistakes are cheap: Cmd+Z undoes anything, and he saves every 10 minutes.', 'Stuck? Try these: undo; check the part is Anchored; look it up together on the Creator Hub.', 'Stop while something works, not halfway through fixing a bug.', 'Praise how he worked: "You tested that jump five times until it worked. That is how real game designers work."'],
+    avoid: ['Taking the mouse to fix it yourself', 'Free models from strangers in the Toolbox', 'Making the game public', 'Extra Studio time outside his budget'],
+    code: 'local lava = script.Parent\nlava.Touched:Connect(function(hit)\n    local humanoid = hit.Parent:FindFirstChild("Humanoid")\n    if humanoid then\n        humanoid.Health = 0\n    end\nend)' },
   { t: 'TikTok and the 13+ rule', when: 'Checking her account age',
     say: ['"TikTok’s own rule is 13 and up. What do you like most about it?"', 'Find another outlet for what she likes: silly videos and dance or singing clips on the family tablet, shared with family only.'],
     avoid: ['A surprise account deletion with no talk first', 'Making it about her friends'] }
@@ -661,7 +671,8 @@ function vScripts() {
   return '<div class="note info">What to say in the moment. Keep it short, calm, and the same every time.</div>' +
     SCRIPTS.map((sc, i) => '<details class="card"' + (i === 0 ? ' open' : '') + '><summary><div class="ch">' + esc(sc.t) + '</div><div class="when">' + esc(sc.when) + '</div></summary>' +
       '<div class="q">Say / do</div><ul class="say">' + sc.say.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
-      '<div class="q">Avoid</div><ul class="say mute">' + sc.avoid.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul></details>').join('');
+      '<div class="q">Avoid</div><ul class="say mute">' + sc.avoid.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
+      (sc.code ? '<div class="q">Lava block script (session 3)</div><pre class="code">' + esc(sc.code) + '</pre>' : '') + '</details>').join('');
 }
 
 function vMore() {
