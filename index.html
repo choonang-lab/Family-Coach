@@ -93,8 +93,8 @@ svg.chart{width:100%;height:auto;display:block}
 .legend i{display:inline-block;width:14px;border-top:2px solid;vertical-align:middle;margin-right:4px}
 #toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9;max-width:90vw}
 #toast.show{opacity:1}
-ul.say{margin:6px 0 0;padding-left:18px}
-ul.say li{margin:4px 0}
+ul.say,ol.say{margin:6px 0 0;padding-left:18px}
+ul.say li,ol.say li{margin:4px 0}
 .field{display:block;margin:10px 0}
 .field span{display:block;font-size:13px;color:var(--mute);margin-bottom:4px}
 .field input{width:100%}
@@ -113,7 +113,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v10';
+const BUILD = 'v11';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -155,6 +155,7 @@ const WEEKS = [
       { id: 'w2-own', t: 'Your daughter plans her own week from December', when: 'Monday' },
       { id: 'w2-studio-setup', t: 'Set up Roblox Studio on the Mac: his own account, a mouse with a scroll wheel, games kept private, no Toolbox free models from strangers', when: 'Before the weekend' },
       { id: 'w2-studio1', t: 'Roblox Studio session 1 (45 min, inside his budget): build something with Move, Scale, Rotate and Anchor, then walk around in it', when: 'Weekend' },
+      { id: 'w2-calls', t: 'Set up FaceTime calls on the iPads: Always Allowed, family contacts only, then test a call after the budget runs out (Scripts: Video check-ins)', when: 'Before Monday' },
       { id: 'w2-rushhour', t: 'KIV: take him to a shop to look at Rush Hour, the one-player car puzzle. If he likes it, buy it and add it to his Yes list and Yes box', when: 'This week' },
       { id: 'w2-job', t: 'Give your daughter one real household job, and let natural consequences happen', when: 'This week' },
       { id: 'w2-review', t: 'Sunday review', when: 'Sunday' }
@@ -240,6 +241,10 @@ const SCRIPTS = [
     say: ['He has the mouse. You only give directions, even when it is slow.', 'Mistakes are cheap: Cmd+Z undoes anything, and he saves every 10 minutes.', 'Stuck? Try these: undo; check the part is Anchored; look it up together on the Creator Hub.', 'Stop while something works, not halfway through fixing a bug.', 'Praise how he worked: "You tested that jump five times until it worked. That is how real game designers work."'],
     avoid: ['Taking the mouse to fix it yourself', 'Free models from strangers in the Toolbox', 'Making the game public', 'Extra Studio time outside his budget'],
     code: 'local lava = script.Parent\nlava.Touched:Connect(function(hit)\n    local humanoid = hit.Parent:FindFirstChild("Humanoid")\n    if humanoid then\n        humanoid.Health = 0\n    end\nend)' },
+  { t: 'Video check-ins from work', when: 'FaceTime on the iPad, over home Wi-Fi',
+    steps: ['iPad: Settings → FaceTime → on, signed in with the child’s Apple Account. Save that email in your Contacts under their name.', 'Your iPhone: Settings → Screen Time → [child] → Always Allowed → add FaceTime, so calls still ring when the budget or Downtime has blocked everything else.', 'Your iPhone: Screen Time → [child] → Communication Limits → Contacts only, during screen time and Downtime. Add only family. Turn on managing their contacts.', 'Test from both parents’ phones: once during play time, once after the budget has run out.', 'Spare iPad on the desk: sign in with his Apple Account, on a stand that tilts down so he can show a worksheet.'],
+    say: ['Fixed times, agreed with them: for example the start of the daily pack and mid-afternoon. 5 minutes is enough.', 'Mostly good news: "Show me what you finished."', 'With her: try a 20-minute call where you both just work quietly. Company helps her get started.', 'The adult at home is in charge. You back them up: "Papa says work first."', 'Home alone: the check-in call is not optional. Call at the start, and agree a time to report back.'],
+    avoid: ['Surprise calls, drop-in or auto-answer', 'Calling only to scold', 'Overruling the adult at home on the call', 'Camera on outside call times, or in a bedroom', 'Leaving one child in charge of the other'] },
   { t: 'TikTok and the 13+ rule', when: 'Checking her account age',
     say: ['"TikTok’s own rule is 13 and up. What do you like most about it?"', 'Find another outlet for what she likes: silly videos and dance or singing clips on the family tablet, shared with family only.'],
     avoid: ['A surprise account deletion with no talk first', 'Making it about her friends'] }
@@ -671,6 +676,7 @@ function rulesCal() {
 function vScripts() {
   return '<div class="note info">What to say in the moment. Keep it short, calm, and the same every time.</div>' +
     SCRIPTS.map((sc, i) => '<details class="card"' + (i === 0 ? ' open' : '') + '><summary><div class="ch">' + esc(sc.t) + '</div><div class="when">' + esc(sc.when) + '</div></summary>' +
+      (sc.steps ? '<div class="q">Setup</div><ol class="say">' + sc.steps.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ol>' : '') +
       '<div class="q">Say / do</div><ul class="say">' + sc.say.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
       '<div class="q">Avoid</div><ul class="say mute">' + sc.avoid.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
       (sc.code ? '<div class="q">Lava block script (session 3)</div><pre class="code">' + esc(sc.code) + '</pre>' : '') + '</details>').join('');
