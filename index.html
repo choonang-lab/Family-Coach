@@ -112,7 +112,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v6';
+const BUILD = 'v7';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -213,11 +213,17 @@ const SCRIPTS = [
     say: ['Say it out loud: "I broke the meal rule. That is on me. Phone is going on the charger."', 'Kids copy what we do more than what we say.'],
     avoid: ['Pretending it did not happen', 'Arguing about it in front of the kids'] },
   { t: 'Instead of "you are not serious"', when: 'A commitment was not kept',
-    say: ['Describe it, do not label it: "You said you would start the pack by 10. It did not happen."', 'Ask before telling: "What got in the way?"', 'Plan together: "What would make it easier tomorrow?" If it keeps slipping, make the commitment smaller.', 'When it is kept: "You said you would, and you did. That is what keeping your word looks like."'],
+    say: ['Describe it, do not label it: "You said you would start the pack by 10. It did not happen."', 'Ask before telling: "What got in the way?"', 'Plan together: "What would make it easier tomorrow?" If it keeps slipping, make the commitment smaller.', 'Missing it often means the system needs a tweak (a reminder they can see, a fixed place), not more effort.', 'When it is kept: "You said you would, and you did. That is what keeping your word looks like."'],
     avoid: ['Labels: lazy, unserious, "you never"', 'Comparing with the other child', 'Punishing an honest "I did not do it"'] },
   { t: 'Talking about results', when: 'Results day, report books, test scores',
-    say: ['Pick a side-by-side moment: a car ride, a walk, bubble tea. Not across a table.', 'Ask first: "How do you feel about your results, honestly?" Then listen. A shrug is an answer; let it go.', '"Which one are you proudest of?" and "Was there anything you wished had gone differently?"', 'Name the effort, not the grade: "That was a long year, and you kept going."', 'Hand them a real choice next: ranking schools, a CCA, one goal of their own.'],
+    say: ['Pick a side-by-side moment: a car ride, a walk, bubble tea. Not across a table.', 'Ask first: "How do you feel about your results, honestly?" Then listen. A shrug is an answer; let it go.', 'A flat reaction does not mean they do not care. Some children show little, and far-off goals feel unreal to them. Keep the talk about now.', '"Which one are you proudest of?" and "Was there anything you wished had gone differently?"', 'Name the effort, not the grade: "That was a long year, and you kept going."', 'Hand them a real choice next: ranking schools, a CCA, one goal of their own.'],
     avoid: ['Showing your reaction to the score before asking how they feel', 'New demands the same day: "Next year is harder, so..."', 'Comparing with friends or the other child', '"You do not seem to care", which lands as a verdict on who they are'] },
+  { t: 'Short talks that land', when: 'Any serious talk, especially with a forgetful or easily distracted child',
+    say: ['One topic, 10 to 15 minutes. Split a big topic across a few days.', 'Side by side and moving: a walk, the car, bubble tea. Fidgeting is fine; no need for eye contact.', 'Give a few minutes warning first. Never start by pulling them off something they are absorbed in.', 'Offer two or three options instead of an open question: "30 minutes, or TV only?"', 'Check by asking them to say it back: "So what is our plan if your phone goes missing?" Then write it down straight away.', 'Agree a one-word reminder in advance, like "Charger". Use it instead of a lecture.'],
+    avoid: ['"You always..." or "you never..."', '"How many times must I tell you?"', 'Serious talks when they are tired or hungry', 'Correcting them in front of others'] },
+  { t: 'After a quarrel', when: 'Once both of you have calmed down',
+    say: ['Go first: "I got frustrated just now. That was not fair. Can we try again?"', 'Keep it short. The repair matters more than winning the point.', 'Then solve the problem together, as in the meltdown card: their side first, then yours.'],
+    avoid: ['Waiting for the child to apologise first', 'Re-opening the whole argument'] },
   { t: 'TikTok and the 13+ rule', when: 'Checking her account age',
     say: ['"TikTok’s own rule is 13 and up. What do you like most about it?"', 'Find another outlet for what she likes: silly videos and dance or singing clips on the family tablet, shared with family only.'],
     avoid: ['A surprise account deletion with no talk first', 'Making it about her friends'] }
@@ -225,7 +231,7 @@ const SCRIPTS = [
 
 const COMMIT_IDEAS = {
   a: ['Start my daily pack by 10am, before any screens', 'When a puzzle gets hard, try the hint box once before stopping', 'Tablet on the charger when the timer goes, the first time I am asked', 'Set the table for dinner every day', 'Water the garden plants every day'],
-  b: ['Plan my week on Sunday night and tick it off each day', 'Do my household job without being reminded', 'Practise singing or dance for 15 minutes (aim: 5 days a week)', 'Phone on the charger by 9:30pm', 'Finish the daily pack before lunch'],
+  b: ['Plan my week on Sunday night and tick it off each day', 'Do my household job without being reminded', 'Practise singing or dance for 15 minutes (aim: 5 days a week)', 'Phone charges outside my bedroom by 9:30pm', 'Finish the daily pack before lunch'],
   us: ['Phones away at every meal, both of us', 'One specific effort praise per child per day', 'Follow through on the first ask, calmly, with no repeated warnings']
 };
 
@@ -515,7 +521,7 @@ function vCommits() {
   const people = kids().map((k) => ({ id: k.id, name: k.name })).concat([{ id: 'us', name: 'Us (both parents)' }]);
   const any = people.some((p) => commitFor(p.id, todayStr()));
   let h = '<details class="card"' + (any ? '' : ' open') + '><summary><div class="ch"><span>Commitments</span><span class="chip">' + people.filter((p) => commitFor(p.id, todayStr())).length + ' set</span></div><div class="when">One each, chosen by them. Kept = 5 of 7 days.</div></summary>' +
-    '<ul class="say small"><li>Show the ideas and let them pick, or write their own. You agree to it, you do not assign it.</li><li>About effort, not results, and small enough to keep on 5 of 7 days.</li><li>Keep it 2 weeks before changing it. Missed two weeks running: make it smaller together.</li><li>Kept: they pick something from the Yes list, each child on their own.</li></ul>';
+    '<ul class="say small"><li>Show the ideas and let them pick, or write their own. You agree to it, you do not assign it.</li><li>About effort, not results, and small enough to keep on 5 of 7 days.</li><li>Put it where they will see it: a note on the fridge or a phone reminder.</li><li>Keep it 2 weeks before changing it. Missed two weeks running: make it smaller together.</li><li>Kept: they pick something from the Yes list, each child on their own.</li></ul>';
   people.forEach((p) => {
     const c = commitFor(p.id, todayStr()), r = commitCount(p.id, c ? lastDays(7).filter((d) => d >= c.from) : []), ideas = COMMIT_IDEAS[p.id] || [];
     h += '<div class="row" style="display:block"><div class="ch" style="margin:6px 0 4px"><span>' + esc(p.name) + '</span>' + (c ? '<span class="chip ' + (r.marked ? (r.kept >= 5 ? 'good' : '') : '') + '">' + (r.marked ? r.kept + ' of last ' + r.marked + ' kept' : 'since ' + shortD(c.from)) + '</span>' : '') + '</div>' +
