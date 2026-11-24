@@ -112,7 +112,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v4';
+const BUILD = 'v5';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -215,6 +215,9 @@ const SCRIPTS = [
   { t: 'Instead of "you are not serious"', when: 'A commitment was not kept',
     say: ['Describe it, do not label it: "You said you would start the pack by 10. It did not happen."', 'Ask before telling: "What got in the way?"', 'Plan together: "What would make it easier tomorrow?" If it keeps slipping, make the commitment smaller.', 'When it is kept: "You said you would, and you did. That is what keeping your word looks like."'],
     avoid: ['Labels: lazy, unserious, "you never"', 'Comparing with the other child', 'Punishing an honest "I did not do it"'] },
+  { t: 'Talking about results', when: 'Results day, report books, test scores',
+    say: ['Pick a side-by-side moment: a car ride, a walk, bubble tea. Not across a table.', 'Ask first: "How do you feel about your results, honestly?" Then listen. A shrug is an answer; let it go.', '"Which one are you proudest of?" and "Was there anything you wished had gone differently?"', 'Name the effort, not the grade: "That was a long year, and you kept going."', 'Hand them a real choice next: ranking schools, a CCA, one goal of their own.'],
+    avoid: ['Showing your reaction to the score before asking how they feel', 'New demands the same day: "Next year is harder, so..."', 'Comparing with friends or the other child', '"You do not seem to care", which lands as a verdict on who they are'] },
   { t: 'TikTok and the 13+ rule', when: 'Checking her account age',
     say: ['"TikTok’s own rule is 13 and up. What do you like most about it?"', 'Find another outlet for what she likes: silly videos and dance or singing clips on the family tablet, shared with family only.'],
     avoid: ['A surprise account deletion with no talk first', 'Making it about her friends'] }
