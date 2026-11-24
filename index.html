@@ -112,7 +112,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v7';
+const BUILD = 'v8';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -149,6 +149,8 @@ const WEEKS = [
       { id: 'w2-short', t: 'Set the short-video cap, or move short videos to the shared TV or tablet only', when: 'Monday' },
       { id: 'w2-plan', t: 'Let each child plan how to spend their budget', when: 'Monday' },
       { id: 'w2-commit', t: 'Each child picks one commitment from the ideas, and we pick one too (Plan tab)', when: 'Once the house rules hold' },
+      { id: 'w2-phone1', t: 'Phone talk 1 (10 min): her phone is coming this month. Give her the budget and the model comparison to research. Same daily budget, different screen', when: 'Tuesday' },
+      { id: 'w2-phone2', t: 'Phone talk 2 (15 min): she pitches her pick. Decide together and buy from a shop with a return window', when: 'Saturday' },
       { id: 'w2-own', t: 'Your daughter plans her own week from December', when: 'Monday' },
       { id: 'w2-job', t: 'Give your daughter one real household job, and let natural consequences happen', when: 'This week' },
       { id: 'w2-review', t: 'Sunday review', when: 'Sunday' }
@@ -160,11 +162,14 @@ const WEEKS = [
       { id: 'w3-praise', t: 'Aim for 3 specific effort praises a day per child (Scripts tab)', when: 'Daily' },
       { id: 'w3-triplep', t: 'Look for a Triple P Level 2 seminar (Raising resilient children, 7 to 12 track)', when: 'This week' },
       { id: 'w3-coop', t: 'Try a co-op split-clue puzzle on Saturday', when: 'Saturday' },
+      { id: 'w3-phone3', t: 'Phone talk 3 (15 min): she rewrites her phone rules, part one: every day, safety and scams, group chats', when: 'Wednesday' },
+      { id: 'w3-phone4', t: 'Phone talk 4 (30 min): finish the rules, set up the phone together (Screen Time, storage settings, Screen Coach), write the agreed-on date', when: 'Saturday' },
       { id: 'w3-review', t: 'Sunday review', when: 'Sunday' }
     ] },
   { n: 4, title: 'Short video down to 30', budget: 180, short: 30,
     goal: 'Third cut. Short video is the hardest habit; expect pushback this week and hold steady.',
     items: [
+      { id: 'w4-handover', t: 'Hand over the phone at Level 1, if the house rules are holding (if not, push back a week). It shares her daily budget with her iPad', when: 'Monday' },
       { id: 'w4-reports', t: 'Compare the Screen Time / Family Link reports with your log', when: 'Midweek' },
       { id: 'w4-ask', t: 'Ask each child what is hardest about the budget, and change one thing with them', when: 'This week' },
       { id: 'w4-review', t: 'Sunday review', when: 'Sunday' }
@@ -172,7 +177,7 @@ const WEEKS = [
   { n: 5, title: 'Near the target', budget: 150, short: 30,
     goal: 'Close to the guideline (under 2 hours of recreational screens). Plan ahead for the holiday days.',
     items: [
-      { id: 'w5-xmas', t: 'Plan the Christmas days: what happens on screen-heavy family days', when: 'Monday' },
+      { id: 'w5-xmas', t: 'Plan the Christmas days: what happens on screen-heavy family days, new phone included', when: 'Monday' },
       { id: 'w5-sec1', t: 'Register for the Transition to Sec 1 parent seminar (likely January)', when: 'This week' },
       { id: 'w5-review', t: 'Sunday review', when: 'Sunday' }
     ] },
