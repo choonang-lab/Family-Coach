@@ -112,7 +112,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v5';
+const BUILD = 'v6';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -121,7 +121,7 @@ const DAY = 864e5;
 /* ---------- Plan content (no names or personal details: this file is public) ---------- */
 const RULES = [
   { id: 'meals', label: 'No screens at meals' },
-  { id: 'charge', label: 'Devices on the living-room charger at bedtime' },
+  { id: 'charge', label: 'Devices charge outside the bedroom from bedtime' },
   { id: 'first', label: 'Work first: daily pack attempted before any screens' }
 ];
 
@@ -134,7 +134,7 @@ const WEEKS = [
       { id: 'w1-roblox', t: 'Link a parent account to the Roblox account, with daily and spending limits', when: 'Setup day' },
       { id: 'w1-tiktok', t: 'Check the age on the TikTok account (the platform rule is 13+)', when: 'Setup day' },
       { id: 'w1-meeting', t: 'Hold the 30-minute family meeting: why, the 3 house rules, 5 Yes-list ideas from each child', when: 'Setup day' },
-      { id: 'w1-charger', t: 'Set up the charging spot in the living room', when: 'Setup day' },
+      { id: 'w1-charger', t: 'Set up a charging spot outside the bedrooms', when: 'Setup day' },
       { id: 'w1-yes', t: 'Put the Yes list on the fridge', when: 'First day of the rules' },
       { id: 'w1-rhythm', t: 'Start the morning rhythm: daily pack and some exercise before any screens', when: 'First day of the rules' },
       { id: 'w1-book', t: 'Book 1 or 2 holiday activities per child for weeks 2 to 4', when: 'This week' },
