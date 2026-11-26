@@ -113,7 +113,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v12';
+const BUILD = 'v13';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -141,7 +141,7 @@ const WEEKS = [
       { id: 'w1-book', t: 'Book 1 or 2 holiday activities per child for weeks 2 to 4', when: 'This week' },
       { id: 'w1-reminders', t: 'Add the reminders to your calendar (More tab)', when: 'Setup day' },
       { id: 'w2-phone-sheet', t: 'Print her phone research sheet (double-sided), put up a fridge clipboard for it, and keep a photo as a backup', when: 'Thursday' },
-      { id: 'w2-phone1', t: 'Phone talk 1 (10 min): her phone is coming in December. Hand her the research sheet, go through the budget and the pass test (explain the parental-controls one), and agree where any leftover goes. She works at her own speed; finish early, talk early. Same daily budget, different screen', when: 'Friday' },
+      { id: 'w2-phone1', t: 'Phone talk 1 (10 min): her phone is coming in December. Hand her the research sheet, go through the budget and the pass test (explain the parental-controls one), and agree where any leftover goes. She works at her own speed; finish early, talk early. Same daily budget, different screen (Scripts: Phone talk 1)', when: 'Friday' },
       { id: 'w1-review', t: 'Sunday review with your wife (Review tab)', when: 'Sunday' }
     ] },
   { n: 2, title: 'Start the budget', budget: 300, short: 60,
@@ -242,6 +242,11 @@ const SCRIPTS = [
     say: ['He has the mouse. You only give directions, even when it is slow.', 'Mistakes are cheap: Cmd+Z undoes anything, and he saves every 10 minutes.', 'Stuck? Try these: undo; check the part is Anchored; look it up together on the Creator Hub.', 'Stop while something works, not halfway through fixing a bug.', 'Praise how he worked: "You tested that jump five times until it worked. That is how real game designers work."'],
     avoid: ['Taking the mouse to fix it yourself', 'Free models from strangers in the Toolbox', 'Making the game public', 'Extra Studio time outside his budget'],
     code: 'local lava = script.Parent\nlava.Touched:Connect(function(hit)\n    local humanoid = hit.Parent:FindFirstChild("Humanoid")\n    if humanoid then\n        humanoid.Health = 0\n    end\nend)' },
+  { t: 'Phone talk 1: handing over the research sheet', when: 'About 10 minutes, a calm moment, side by side',
+    stepsLabel: 'Steps',
+    steps: ['Good news first: "Your phone is coming this December. And you are going to choose it." Pause and let her react.', 'Budget: "We pay up to the budget for the phone. The case, screen protector and anything above, you pay. If your pick costs less, what should happen to the leftover?" She suggests first; write it on the line together.', 'The pass test, the one part you explain: "iPhone or Android is your choice, but every phone must pass all 5. It will have the same controls as your iPad: same daily budget, different screen. That is how every first phone starts in our house. Show you can handle it and you get more freedom, step by step."', 'How it works: "Six parts, any order, your own speed. Tick each one. Finish early, talk early. Latest is next Saturday. After we buy, we write your phone rules together and set it up. Then it is yours, around mid-December."', 'Where it lives: "Where should this live so it does not go missing? The fridge clipboard?" Let her put it there. Quietly take a photo as a backup.', 'End with: "What questions do you have?" Answer briefly, then stop.'],
+    say: ['Pushback on the controls: "That is the deal for everyone at the start. We will talk about levels when we write the rules."', 'Back in 30 minutes saying done: "Fast! Show me your top phone. Does it pass all 5?" If she cannot say, send her back to that one part: "Find out that one, then we talk."', 'Asked why the keep-track part is there: "Everyone needs a plan for their phone. I have one too."'],
+    avoid: ['Any mention of losing things before', 'A lecture about responsibility; the sheet does that job', 'Pushing your own pick', 'Adding "and remember to..." at the end', 'Doing it right after screen time ends, or when she is tired'] },
   { t: 'Video check-ins from work', when: 'FaceTime on the iPad, over home Wi-Fi',
     steps: ['iPad: Settings → FaceTime → on, signed in with the child’s Apple Account. Save that email in your Contacts under their name.', 'Your iPhone: Settings → Screen Time → [child] → Always Allowed → add FaceTime, so calls still ring when the budget or Downtime has blocked everything else.', 'Your iPhone: Screen Time → [child] → Communication Limits → Contacts only, during screen time and Downtime. Add only family. Turn on managing their contacts.', 'Test from both parents’ phones: once during play time, once after the budget has run out.', 'Spare iPad on the desk: sign in with his Apple Account, on a stand that tilts down so he can show a worksheet.'],
     say: ['Fixed times, agreed with them: for example the start of the daily pack and mid-afternoon. 5 minutes is enough.', 'Mostly good news: "Show me what you finished."', 'With her: try a 20-minute call where you both just work quietly. Company helps her get started.', 'The adult at home is in charge. You back them up: "Papa says work first."', 'Home alone: the check-in call is not optional. Call at the start, and agree a time to report back.'],
@@ -677,7 +682,7 @@ function rulesCal() {
 function vScripts() {
   return '<div class="note info">What to say in the moment. Keep it short, calm, and the same every time.</div>' +
     SCRIPTS.map((sc, i) => '<details class="card"' + (i === 0 ? ' open' : '') + '><summary><div class="ch">' + esc(sc.t) + '</div><div class="when">' + esc(sc.when) + '</div></summary>' +
-      (sc.steps ? '<div class="q">Setup</div><ol class="say">' + sc.steps.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ol>' : '') +
+      (sc.steps ? '<div class="q">' + esc(sc.stepsLabel || 'Setup') + '</div><ol class="say">' + sc.steps.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ol>' : '') +
       '<div class="q">Say / do</div><ul class="say">' + sc.say.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
       '<div class="q">Avoid</div><ul class="say mute">' + sc.avoid.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
       (sc.code ? '<div class="q">Lava block script (session 3)</div><pre class="code">' + esc(sc.code) + '</pre>' : '') + '</details>').join('');
