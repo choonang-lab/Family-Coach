@@ -2,7 +2,7 @@
    Bump CACHE together with BUILD in index.html on every release.
    HTML: network-first (fresh online, cached offline). Same-origin assets: cache-first.
    Cross-origin (api.github.com backup calls) is never touched. */
-const CACHE = 'fc-v11';
+const CACHE = 'fc-v12';
 const ESSENTIAL = ['./', './index.html'];
 const OPTIONAL = ['./manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 

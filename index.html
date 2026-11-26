@@ -113,7 +113,7 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--
 <nav id="tabbar"></nav>
 <div id="toast"></div>
 <script>
-const BUILD = 'v11';
+const BUILD = 'v12';
 const KEY = 'fc_data';
 const GHKEY = 'fc_gh';
 const DIRTY = 'fc_dirty';
@@ -140,6 +140,8 @@ const WEEKS = [
       { id: 'w1-rhythm', t: 'Start the morning rhythm: daily pack and some exercise before any screens', when: 'First day of the rules' },
       { id: 'w1-book', t: 'Book 1 or 2 holiday activities per child for weeks 2 to 4', when: 'This week' },
       { id: 'w1-reminders', t: 'Add the reminders to your calendar (More tab)', when: 'Setup day' },
+      { id: 'w2-phone-sheet', t: 'Print her phone research sheet (double-sided), put up a fridge clipboard for it, and keep a photo as a backup', when: 'Thursday' },
+      { id: 'w2-phone1', t: 'Phone talk 1 (10 min): her phone is coming in December. Hand her the research sheet, go through the budget and the pass test (explain the parental-controls one), and agree where any leftover goes. She works at her own speed; finish early, talk early. Same daily budget, different screen', when: 'Friday' },
       { id: 'w1-review', t: 'Sunday review with your wife (Review tab)', when: 'Sunday' }
     ] },
   { n: 2, title: 'Start the budget', budget: 300, short: 60,
@@ -150,8 +152,7 @@ const WEEKS = [
       { id: 'w2-short', t: 'Set the short-video cap, or move short videos to the shared TV or tablet only', when: 'Monday' },
       { id: 'w2-plan', t: 'Let each child plan how to spend their budget', when: 'Monday' },
       { id: 'w2-commit', t: 'Each child picks one commitment from the ideas, and we pick one too (Plan tab)', when: 'Once the house rules hold' },
-      { id: 'w2-phone1', t: 'Phone talk 1 (10 min): her phone is coming this month. Give her the budget and the model comparison to research. Same daily budget, different screen', when: 'Tuesday' },
-      { id: 'w2-phone2', t: 'Phone talk 2 (15 min): she pitches her pick. Decide together and buy from a shop with a return window', when: 'Saturday' },
+      { id: 'w2-phone2', t: 'Phone talk 2 (15 min): she pitches her pick from the research sheet (sooner if she finishes early). Decide together and buy from a shop with a return window', when: 'By Saturday' },
       { id: 'w2-own', t: 'Your daughter plans her own week from December', when: 'Monday' },
       { id: 'w2-studio-setup', t: 'Set up Roblox Studio on the Mac: his own account, a mouse with a scroll wheel, games kept private, no Toolbox free models from strangers', when: 'Before the weekend' },
       { id: 'w2-studio1', t: 'Roblox Studio session 1 (45 min, inside his budget): build something with Move, Scale, Rotate and Anchor, then walk around in it', when: 'Weekend' },
